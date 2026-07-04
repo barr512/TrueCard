@@ -311,3 +311,30 @@ button:active {
     font-size: 26px;
   }
 }
+.camera-modal {
+  align-items: flex-start;
+  overflow-y: auto;
+  padding-top: max(18px, env(safe-area-inset-top));
+  padding-bottom: max(120px, env(safe-area-inset-bottom));
+}
+
+.camera-box {
+  padding-bottom: 120px;
+}
+
+.camera-actions {
+  position: sticky;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  background: rgba(15, 23, 42, 0.92);
+  padding: 10px;
+  border-radius: 18px;
+}
+
+.card-actions {
+  flex-wrap: wrap;
+}
+
+.card-actions button,
+.card-actions a {
+  min-width: 30%;
+}
