@@ -8,7 +8,7 @@ let allCards = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadCards();
-  registerServiceWorker();
+  // registerServiceWorker();
 });
 
 cardForm.addEventListener("submit", async event => {
