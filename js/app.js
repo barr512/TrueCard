@@ -83,19 +83,25 @@ function setupRecognitionListener() {
   document.addEventListener("frontImageCaptured", async event => {
     const blob = event.detail.blob;
 
-    alert("Front image captured. Sending to CardSight...");
-
     const result = await identifyCard(blob);
 
-    if (!result) {
-      alert("CardSight did not return a result.");
+    if (!result || !result.detections || result.detections.length === 0) {
+      alert("No card match found. You can enter the card manually.");
       return;
     }
 
-    console.log("CardSight result:", result);
+    const bestMatch = result.detections[0];
+    const card = bestMatch.card || {};
 
-    alert(JSON.stringify(result, null, 2));
+    document.getElementById("player").value = card.name || "";
+    document.getElementById("year").value = card.year || "";
+    document.getElementById("manufacturer").value = card.manufacturer || "";
+    document.getElementById("setName").value = card.releaseName || card.setName || "";
+    document.getElementById("cardNumber").value = card.number || "";
+
+    alert(`Card identified: ${card.year || ""} ${card.manufacturer || ""} ${card.name || ""} #${card.number || ""}`);
   });
+}
 }
 
 function setupNavigation() {
