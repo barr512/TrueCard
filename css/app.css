@@ -384,6 +384,10 @@ button:active {
     transform: rotate(360deg);
   }
 }
+.recognition-status[hidden] {
+  display: none !important;
+}
+
 .recognized-card-details {
   margin: 6px 0 10px;
   padding: 14px;
