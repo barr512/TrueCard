@@ -250,3 +250,306 @@ function renderDashboard(cards) {
 /*=========================================================================
     RENDER COLLECTION
 =========================================================================*/
+/******************************************************************************
+ *  app.js
+ *  PART 2 OF 3
+ *
+ *  Continue immediately after:
+ *
+ *  // ===== RENDER COLLECTION =====
+ ******************************************************************************/
+
+function renderCards(cards) {
+
+    cardList.innerHTML = "";
+
+    if (cards.length === 0) {
+
+        cardList.innerHTML = `
+            <div class="panel">
+                <p class="helper-text">
+                    No cards yet.
+                    Scan your first card to begin.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    cards
+        .sort((a, b) =>
+            new Date(b.createdAt) - new Date(a.createdAt)
+        )
+        .forEach(card => {
+
+            const article = document.createElement("article");
+
+            article.className = "collection-card";
+
+            article.innerHTML = `
+
+                ${
+                    card.frontImage
+                        ? `<img
+                                class="card-image"
+                                src="${card.frontImage}">
+                          `
+                        : ""
+                }
+
+                <h3>${escapeHTML(card.player || "Unknown Player")}</h3>
+
+                <p>
+                    ${escapeHTML(card.year || "")}
+                    ${escapeHTML(card.manufacturer || "")}
+                    ${escapeHTML(card.setName || "")}
+                </p>
+
+                <p>
+                    Card #
+                    ${escapeHTML(card.cardNumber || "N/A")}
+                </p>
+
+                <p>
+                    ${formatCurrency(card.currentValue || 0)}
+                </p>
+
+                <div class="card-actions">
+
+                    <button
+                        data-view-id="${card.id}">
+                        View
+                    </button>
+
+                    <button
+                        data-comps-id="${card.id}">
+                        130 Point
+                    </button>
+
+                    <button
+                        class="delete-btn"
+                        data-delete-id="${card.id}">
+                        Delete
+                    </button>
+
+                </div>
+
+            `;
+
+            cardList.appendChild(article);
+
+        });
+
+    wireButtons();
+
+}
+
+/*=========================================================================
+    BUTTON EVENTS
+=========================================================================*/
+
+function wireButtons() {
+
+    document
+        .querySelectorAll("[data-view-id]")
+        .forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                const card = allCards.find(
+
+                    c => c.id === button.dataset.viewId
+
+                );
+
+                if (!card) return;
+
+                openDetail(card);
+
+            });
+
+        });
+
+    document
+        .querySelectorAll("[data-comps-id]")
+        .forEach(button => {
+
+            button.addEventListener("click", async () => {
+
+                const card = allCards.find(
+
+                    c => c.id === button.dataset.compsId
+
+                );
+
+                if (!card) return;
+
+                const query = buildCardSearchText(card);
+
+                try {
+
+                    await navigator.clipboard.writeText(query);
+
+                    alert(
+                        `Copied search text:\n\n${query}`
+                    );
+
+                }
+
+                catch {
+
+                    alert(query);
+
+                }
+
+                window.open(
+                    "https://130point.com/sales/",
+                    "_blank",
+                    "noopener"
+                );
+
+            });
+
+        });
+
+    document
+        .querySelectorAll("[data-delete-id]")
+        .forEach(button => {
+
+            button.addEventListener("click", async () => {
+
+                if (!confirm("Delete this card?"))
+                    return;
+
+                await deleteCard(button.dataset.deleteId);
+
+                await loadCards();
+
+            });
+
+        });
+
+}
+
+/*=========================================================================
+    DETAIL SCREEN
+=========================================================================*/
+
+function openDetail(card) {
+
+    selectedCard = card;
+
+    detailPlayer.textContent =
+        card.player || "Unknown Player";
+
+    detailYear.textContent =
+        card.year || "-";
+
+    detailSet.textContent =
+        card.setName || "-";
+
+    detailManufacturer.textContent =
+        card.manufacturer || "-";
+
+    detailNumber.textContent =
+        card.cardNumber || "-";
+
+    detailSport.textContent =
+        card.sport || "-";
+
+    detailValue.textContent =
+        formatCurrency(card.currentValue || 0);
+
+    if (card.frontImage) {
+
+        detailFrontImage.hidden = false;
+
+        detailFrontImage.src = card.frontImage;
+
+    } else {
+
+        detailFrontImage.hidden = true;
+
+    }
+
+    if (card.backImage) {
+
+        detailBackImage.hidden = false;
+
+        detailBackImage.src = card.backImage;
+
+    } else {
+
+        detailBackImage.hidden = true;
+
+    }
+
+    detailEditButton.onclick = () => {
+
+        alert(
+            "Edit screen coming in the next sprint."
+        );
+
+    };
+
+    detailDeleteButton.onclick = async () => {
+
+        if (!confirm("Delete this card?"))
+            return;
+
+        await deleteCard(card.id);
+
+        navigateTo("collectionScreen");
+
+        await loadCards();
+
+    };
+
+    navigateTo("detailScreen");
+
+}
+
+/*=========================================================================
+    FILTER
+=========================================================================*/
+
+function filterCards(query) {
+
+    const q = query
+        .trim()
+        .toLowerCase();
+
+    if (!q)
+        return allCards;
+
+    return allCards.filter(card => {
+
+        return [
+
+            card.player,
+
+            card.year,
+
+            card.setName,
+
+            card.manufacturer,
+
+            card.cardNumber,
+
+            card.sport,
+
+            card.currentValue
+
+        ]
+            .join(" ")
+            .toLowerCase()
+            .includes(q);
+
+    });
+
+}
+
+/*=========================================================================
+    UTILITIES
+=========================================================================*/
