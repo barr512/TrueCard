@@ -399,3 +399,154 @@ function escapeHTML(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+function updateCollectionView() {
+  let cards = [...allCards];
+
+  cards = applySearch(cards);
+  cards = applyFilter(cards);
+  cards = applySort(cards);
+
+  renderCards(cards);
+}
+
+function applySearch(cards) {
+  const query = searchInput.value.toLowerCase().trim();
+
+  if (!query) return cards;
+
+  return cards.filter(card => {
+    return [
+      card.player,
+      card.year,
+      card.setName,
+      card.manufacturer,
+      card.cardNumber,
+      card.sport,
+      card.currentValue
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(query);
+  });
+}
+
+function applyFilter(cards) {
+  const type = filterBy.value;
+  const value = filterValue.value;
+
+  if (type === "all") return cards;
+
+  if (type === "favorites") {
+    return cards.filter(card => card.favorite);
+  }
+
+  if (type === "wishlist") {
+    return cards.filter(card => card.wishlist);
+  }
+
+  if (type === "sold") {
+    return cards.filter(card => card.sold);
+  }
+
+  if (!value) return cards;
+
+  return cards.filter(card => {
+    if (type === "year") return String(card.year || "") === value;
+    if (type === "sport") return String(card.sport || "") === value;
+    if (type === "manufacturer") return String(card.manufacturer || "") === value;
+    if (type === "set") return String(card.setName || "") === value;
+
+    return true;
+  });
+}
+
+function applySort(cards) {
+  const sort = sortBy.value;
+
+  return [...cards].sort((a, b) => {
+    if (sort === "favorites") {
+      return Number(b.favorite) - Number(a.favorite);
+    }
+
+    if (sort === "newest") {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    }
+
+    if (sort === "oldest") {
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    }
+
+    if (sort === "highValue") {
+      return Number(b.currentValue || 0) - Number(a.currentValue || 0);
+    }
+
+    if (sort === "lowValue") {
+      return Number(a.currentValue || 0) - Number(b.currentValue || 0);
+    }
+
+    if (sort === "playerAZ") {
+      return String(a.player || "").localeCompare(String(b.player || ""));
+    }
+
+    if (sort === "playerZA") {
+      return String(b.player || "").localeCompare(String(a.player || ""));
+    }
+
+    if (sort === "yearNewest") {
+      return Number(b.year || 0) - Number(a.year || 0);
+    }
+
+    if (sort === "yearOldest") {
+      return Number(a.year || 0) - Number(b.year || 0);
+    }
+
+    return 0;
+  });
+}
+
+function populateFilterValues() {
+  const type = filterBy.value;
+
+  filterValue.innerHTML = `<option value="">All</option>`;
+
+  if (
+    type === "all" ||
+    type === "favorites" ||
+    type === "wishlist" ||
+    type === "sold"
+  ) {
+    filterValue.disabled = true;
+    return;
+  }
+
+  filterValue.disabled = false;
+
+  let values = [];
+
+  if (type === "year") {
+    values = allCards.map(card => card.year);
+  }
+
+  if (type === "sport") {
+    values = allCards.map(card => card.sport);
+  }
+
+  if (type === "manufacturer") {
+    values = allCards.map(card => card.manufacturer);
+  }
+
+  if (type === "set") {
+    values = allCards.map(card => card.setName);
+  }
+
+  const uniqueValues = [...new Set(values.filter(Boolean))]
+    .sort((a, b) => String(a).localeCompare(String(b)));
+
+  uniqueValues.forEach(value => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    filterValue.appendChild(option);
+  });
+}
