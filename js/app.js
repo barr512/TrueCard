@@ -213,9 +213,7 @@ function renderCards(cards) {
     return;
   }
 
-  cards
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .forEach(card => {
+  cards.forEach(card => {
       const cardElement = document.createElement("article");
       cardElement.className = "collection-card compact-card";
 
