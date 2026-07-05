@@ -85,10 +85,12 @@ function setupRecognitionListener() {
     const status = document.getElementById("recognitionStatus");
 
     status.hidden = false;
+status.style.display = "flex";
 
     const result = await identifyCard(blob);
 
-    status.hidden = true;
+    status.style.display = "none";
+status.hidden = true;
 
     if (!result || !result.detections || result.detections.length === 0) {
       alert("No card match found. You can enter the card manually.");
