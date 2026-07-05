@@ -342,8 +342,17 @@ function openDetail(card) {
     }
   };
     detailEditButton.onclick = () => {
-    alert("Edit screen coming next.");
-  };
+  editCardPanel.hidden = false;
+
+  editPlayer.value = card.player || "";
+  editYear.value = card.year || "";
+  editSetName.value = card.setName || "";
+  editManufacturer.value = card.manufacturer || "";
+  editCardNumber.value = card.cardNumber || "";
+  editSport.value = card.sport || "";
+  editCurrentValue.value = card.currentValue || "";
+  editNotes.value = card.notes || "";
+};
 
   detailDeleteButton.onclick = async () => {
     const confirmed = confirm("Delete this card?");
