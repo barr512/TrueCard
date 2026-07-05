@@ -31,6 +31,13 @@ let selectedCard = null;
 document.addEventListener("DOMContentLoaded", async () => {
   setupNavigation();
   setupRecognitionListener();
+
+  if (scanCardButton) {
+    scanCardButton.addEventListener("click", () => {
+      navigateTo("scanScreen");
+    });
+  }
+
   await loadCards();
 });
 
