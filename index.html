@@ -79,31 +79,48 @@
           </div>
 
           <form id="cardForm">
+  <div id="recognitionStatus" class="recognition-status" hidden>
+    <span class="spinner"></span>
+    <span>Recognizing card...</span>
+  </div>
 
-            <input id="player" placeholder="Player name" required />
+  <label class="field-label">
+    Player
+    <input id="player" placeholder="Player name" required />
+  </label>
 
-            <input id="year" placeholder="Year" type="number" />
+  <label class="field-label">
+    Year
+    <input id="year" placeholder="Year" type="number" />
+  </label>
 
-            <input id="setName" placeholder="Set" />
+  <label class="field-label">
+    Set
+    <input id="setName" placeholder="Set" />
+  </label>
 
-            <input id="manufacturer" placeholder="Manufacturer" hidden />
+  <label class="field-label" hidden>
+    Manufacturer
+    <input id="manufacturer" placeholder="Manufacturer" />
+  </label>
 
-            <input id="cardNumber" placeholder="Card Number" />
+  <label class="field-label">
+    Card Number
+    <input id="cardNumber" placeholder="Card number" />
+  </label>
 
-            <input id="sport" placeholder="Sport" hidden />
+  <label class="field-label" hidden>
+    Sport
+    <input id="sport" placeholder="Sport" />
+  </label>
 
-            <input
-              id="currentValue"
-              placeholder="Current Value"
-              type="number"
-              step="0.01"
-            />
+  <label class="field-label">
+    Current Value
+    <input id="currentValue" placeholder="Current value" type="number" step="0.01" />
+  </label>
 
-            <button type="submit">
-              Save to Collection
-            </button>
-
-          </form>
+  <button type="submit">Save to Collection</button>
+</form>
 
         </div>
 
