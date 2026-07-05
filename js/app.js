@@ -486,12 +486,16 @@ function applySort(cards) {
     }
 
     if (sort === "playerAZ") {
-      return String(a.player || "").localeCompare(String(b.player || ""));
-    }
+  return String(a.player || "")
+    .toLowerCase()
+    .localeCompare(String(b.player || "").toLowerCase());
+}
 
     if (sort === "playerZA") {
-      return String(b.player || "").localeCompare(String(a.player || ""));
-    }
+  return String(b.player || "")
+    .toLowerCase()
+    .localeCompare(String(a.player || "").toLowerCase());
+}
 
     if (sort === "yearNewest") {
       return Number(b.year || 0) - Number(a.year || 0);
