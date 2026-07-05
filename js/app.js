@@ -198,7 +198,7 @@ function renderCards(cards) {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .forEach(card => {
       const cardElement = document.createElement("article");
-      cardElement.className = "collection-card";
+      cardElement.className = "collection-card compact-card";
 
       const frontImageHTML = card.frontImage
         ? `<img class="card-image" src="${card.frontImage}" alt="Front card image">`
