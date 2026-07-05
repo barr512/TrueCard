@@ -88,7 +88,7 @@ function setupRecognitionListener() {
     const result = await identifyCard(blob);
 
     if (!result) {
-      alert("CardSight did not return a result.");
+      alert(JSON.stringify(result, null, 2));
       return;
     }
 
