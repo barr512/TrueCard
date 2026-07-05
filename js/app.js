@@ -20,7 +20,7 @@ const detailFrontImage = document.getElementById("detailFrontImage");
 const detailBackImage = document.getElementById("detailBackImage");
 const detailEditButton = document.getElementById("detailEditButton");
 const detailDeleteButton = document.getElementById("detailDeleteButton");
-const recognizedCardDetails = document.getElementById("recognizedCardDetails");
+
 let allCards = [];
 let selectedCard = null;
 
