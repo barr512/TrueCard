@@ -300,20 +300,68 @@
 
           </div>
 
-          <div class="card-actions">
+          <div id="editCardPanel" class="edit-panel" hidden>
 
-            <button id="detailEditButton">
-              Edit
-            </button>
+  <label>
+    Player
+    <input id="editPlayer" />
+  </label>
 
-            <button
-              id="detailDeleteButton"
-              class="delete-btn"
-            >
-              Delete
-            </button>
+  <label>
+    Year
+    <input id="editYear" type="number" />
+  </label>
 
-          </div>
+  <label>
+    Set
+    <input id="editSetName" />
+  </label>
+
+  <label>
+    Manufacturer
+    <input id="editManufacturer" />
+  </label>
+
+  <label>
+    Card Number
+    <input id="editCardNumber" />
+  </label>
+
+  <label>
+    Sport
+    <input id="editSport" />
+  </label>
+
+  <label>
+    Current Value
+    <input id="editCurrentValue" type="number" step="0.01" />
+  </label>
+
+  <label>
+    Notes
+    <input id="editNotes" />
+  </label>
+
+  <button id="saveEditButton" type="button">
+    Save Changes
+  </button>
+
+</div>
+
+<div class="card-actions">
+
+  <button id="detailEditButton">
+    Edit
+  </button>
+
+  <button
+    id="detailDeleteButton"
+    class="delete-btn"
+  >
+    Delete
+  </button>
+
+</div>
 
         </div>
 
