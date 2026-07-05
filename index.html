@@ -137,15 +137,38 @@
 
           <h2>Collection</h2>
 
-          <div class="collection-controls">
+         <div class="collection-controls">
 
   <input
     id="searchInput"
-    placeholder="Search player, year, player, set..."
+    placeholder="Search player, year, set, manufacturer..."
   />
 
-  <select id="yearFilter">
-    <option value="">All Years</option>
+  <select id="filterBy">
+    <option value="all">All Cards</option>
+    <option value="favorites">Favorites</option>
+    <option value="wishlist">Wishlist</option>
+    <option value="sold">Sold</option>
+    <option value="year">Filter by Year</option>
+    <option value="sport">Filter by Sport</option>
+    <option value="manufacturer">Filter by Manufacturer</option>
+    <option value="set">Filter by Set</option>
+  </select>
+
+  <select id="filterValue">
+    <option value="">All</option>
+  </select>
+
+  <select id="sortBy">
+    <option value="favorites">Favorites First</option>
+    <option value="newest">Newest Added</option>
+    <option value="oldest">Oldest Added</option>
+    <option value="highValue">Highest Value</option>
+    <option value="lowValue">Lowest Value</option>
+    <option value="playerAZ">Player A–Z</option>
+    <option value="playerZA">Player Z–A</option>
+    <option value="yearNewest">Year Newest</option>
+    <option value="yearOldest">Year Oldest</option>
   </select>
 
 </div>
