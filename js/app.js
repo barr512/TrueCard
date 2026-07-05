@@ -82,8 +82,13 @@ searchInput.addEventListener("input", () => {
 function setupRecognitionListener() {
   document.addEventListener("frontImageCaptured", async event => {
     const blob = event.detail.blob;
+    const status = document.getElementById("recognitionStatus");
+
+    status.hidden = false;
 
     const result = await identifyCard(blob);
+
+    status.hidden = true;
 
     if (!result || !result.detections || result.detections.length === 0) {
       alert("No card match found. You can enter the card manually.");
@@ -96,7 +101,12 @@ function setupRecognitionListener() {
     document.getElementById("player").value = card.name || "";
     document.getElementById("year").value = card.year || "";
     document.getElementById("manufacturer").value = card.manufacturer || "";
-    document.getElementById("setName").value = card.releaseName || card.setName || "";
+
+    document.getElementById("setName").value =
+      card.releaseName && card.setName && card.setName !== "Base Set"
+        ? `${card.releaseName} - ${card.setName}`
+        : card.releaseName || card.setName || "";
+
     document.getElementById("cardNumber").value = card.number || "";
 
     console.log("Card identified:", {
