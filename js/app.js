@@ -553,3 +553,133 @@ function filterCards(query) {
 /*=========================================================================
     UTILITIES
 =========================================================================*/
+/******************************************************************************
+ *  app.js
+ *  PART 3 OF 3
+ *
+ *  Continue immediately after:
+ *
+ *  // ===== UTILITIES =====
+ ******************************************************************************/
+
+/*=========================================================================
+    BUILD 130 POINT SEARCH
+=========================================================================*/
+
+function buildCardSearchText(card) {
+
+    return [
+
+        card.year,
+
+        card.manufacturer,
+
+        card.setName,
+
+        card.player,
+
+        card.cardNumber
+            ? `#${card.cardNumber}`
+            : ""
+
+    ]
+        .filter(Boolean)
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+}
+
+/*=========================================================================
+    CURRENCY
+=========================================================================*/
+
+function formatCurrency(value) {
+
+    return Number(value || 0).toLocaleString(
+
+        "en-US",
+
+        {
+
+            style: "currency",
+
+            currency: "USD"
+
+        }
+
+    );
+
+}
+
+/*=========================================================================
+    HTML ESCAPE
+=========================================================================*/
+
+function escapeHTML(value) {
+
+    return String(value || "")
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+
+}
+
+function escapeAttribute(value) {
+
+    return escapeHTML(value);
+
+}
+
+/*=========================================================================
+    FUTURE PLACEHOLDERS
+=========================================================================*/
+
+/*
+    Sprint 2
+    --------
+
+    editCard(card)
+
+    saveCardEdits()
+
+    cancelEdit()
+
+*/
+
+/*
+    Sprint 3
+    --------
+
+    sortCards()
+
+    filterBySport()
+
+    filterByGrade()
+
+    filterByManufacturer()
+
+*/
+
+/*
+    Sprint 4
+    --------
+
+    AI Condition Analysis
+
+    Auto Card Identification
+
+    Auto Population
+
+*/
+
+/******************************************************************************
+ *  END OF FILE
+ ******************************************************************************/
