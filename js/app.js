@@ -99,9 +99,11 @@ function setupRecognitionListener() {
     document.getElementById("setName").value = card.releaseName || card.setName || "";
     document.getElementById("cardNumber").value = card.number || "";
 
-    alert(`Card identified: ${card.year || ""} ${card.manufacturer || ""} ${card.name || ""} #${card.number || ""}`);
+    console.log("Card identified:", {
+      confidence: bestMatch.confidence,
+      card
+    });
   });
-}
 }
 
 function setupNavigation() {
