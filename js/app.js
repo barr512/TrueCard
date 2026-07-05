@@ -27,7 +27,16 @@ const detailBackImage = document.getElementById("detailBackImage");
 const detailCopySearchButton = document.getElementById("detailCopySearchButton");
 const detailEditButton = document.getElementById("detailEditButton");
 const detailDeleteButton = document.getElementById("detailDeleteButton");
-
+const editCardPanel = document.getElementById("editCardPanel");
+const editPlayer = document.getElementById("editPlayer");
+const editYear = document.getElementById("editYear");
+const editSetName = document.getElementById("editSetName");
+const editManufacturer = document.getElementById("editManufacturer");
+const editCardNumber = document.getElementById("editCardNumber");
+const editSport = document.getElementById("editSport");
+const editCurrentValue = document.getElementById("editCurrentValue");
+const editNotes = document.getElementById("editNotes");
+const saveEditButton = document.getElementById("saveEditButton");
 let allCards = [];
 let selectedCard = null;
 
