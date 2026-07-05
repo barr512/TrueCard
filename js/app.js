@@ -300,7 +300,16 @@ detailNotes.textContent =
     detailBackImage.hidden = true;
     detailBackImage.src = "";
   }
+detailCopySearchButton.onclick = async () => {
+  const query = buildCardSearchText(card);
 
+  try {
+    await navigator.clipboard.writeText(query);
+    alert(`Copied search text:\n\n${query}`);
+  } catch {
+    alert(`Search text:\n\n${query}`);
+  }
+};
   detailEditButton.onclick = () => {
     alert("Edit screen coming next.");
   };
