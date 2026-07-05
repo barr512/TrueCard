@@ -89,9 +89,15 @@ cardForm.addEventListener("submit", async event => {
   navigateTo("collectionScreen");
 });
 
-searchInput.addEventListener("input", () => {
-  renderCards(filterCards(searchInput.value));
+searchInput.addEventListener("input", updateCollectionView);
+
+filterBy.addEventListener("change", () => {
+  populateFilterValues();
+  updateCollectionView();
 });
+
+filterValue.addEventListener("change", updateCollectionView);
+sortBy.addEventListener("change", updateCollectionView);
 
 function setupRecognitionListener() {
   document.addEventListener("frontImageCaptured", async event => {
