@@ -177,7 +177,8 @@ function navigateTo(screenId) {
 async function loadCards() {
   allCards = await getAllCards();
   renderDashboard(allCards);
-  renderCards(allCards);
+  populateFilterValues();
+  updateCollectionView();
 }
 
 function renderDashboard(cards) {
