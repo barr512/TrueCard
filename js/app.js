@@ -1,7 +1,7 @@
 const cardForm = document.getElementById("cardForm");
 const cardList = document.getElementById("cardList");
 const searchInput = document.getElementById("searchInput");
-
+const scanCardButton = document.querySelector('[data-nav="scanScreen"]');
 const totalCards = document.getElementById("totalCards");
 const totalValue = document.getElementById("totalValue");
 const portfolioCards = document.getElementById("portfolioCards");
