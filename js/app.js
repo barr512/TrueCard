@@ -259,12 +259,31 @@ function openDetail(card) {
   selectedCard = card;
 
   detailPlayer.textContent = card.player || "Unknown Player";
-  detailYear.textContent = card.year || "-";
-  detailSet.textContent = card.setName || "-";
-  detailManufacturer.textContent = card.manufacturer || "-";
-  detailNumber.textContent = card.cardNumber || "-";
-  detailSport.textContent = card.sport || "-";
-  detailValue.textContent = formatCurrency(card.currentValue || 0);
+
+detailSubtitle.textContent = [
+  card.year,
+  card.manufacturer,
+  card.setName
+]
+  .filter(Boolean)
+  .join(" • ");
+
+detailYear.textContent = card.year || "—";
+detailSet.textContent = card.setName || "—";
+detailManufacturer.textContent = card.manufacturer || "—";
+detailNumber.textContent = card.cardNumber || "—";
+detailSport.textContent = card.sport || "—";
+
+detailValue.textContent = formatCurrency(card.currentValue || 0);
+
+detailStatus.textContent = card.sold
+  ? "Sold"
+  : card.wishlist
+    ? "Wishlist"
+    : "Owned";
+
+detailNotes.textContent =
+  card.notes?.trim() || "No notes yet.";
 
   if (card.frontImage) {
     detailFrontImage.hidden = false;
