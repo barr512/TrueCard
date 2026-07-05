@@ -384,3 +384,40 @@ button:active {
     transform: rotate(360deg);
   }
 }
+.recognized-card-details {
+  margin: 6px 0 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--soft);
+}
+
+.recognized-card-details h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.recognized-card-details .detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.recognized-card-details .detail-row:last-child {
+  border-bottom: none;
+}
+
+.recognized-card-details .label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.recognized-card-details .value {
+  color: var(--text);
+  font-weight: 800;
+  text-align: right;
+}
