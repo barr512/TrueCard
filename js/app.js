@@ -502,15 +502,11 @@ function applySort(cards) {
     }
 
     if (sort === "playerAZ") {
-  return String(a.player || "")
-    .toLowerCase()
-    .localeCompare(String(b.player || "").toLowerCase());
+  return getLastName(a.player).localeCompare(getLastName(b.player));
 }
 
-    if (sort === "playerZA") {
-  return String(b.player || "")
-    .toLowerCase()
-    .localeCompare(String(a.player || "").toLowerCase());
+if (sort === "playerZA") {
+  return getLastName(b.player).localeCompare(getLastName(a.player));
 }
 
     if (sort === "yearNewest") {
@@ -569,4 +565,12 @@ function populateFilterValues() {
     option.textContent = value;
     filterValue.appendChild(option);
   });
+}
+function getLastName(name) {
+  const parts = String(name || "")
+    .trim()
+    .toLowerCase()
+    .split(/\s+/);
+
+  return parts.length ? parts[parts.length - 1] : "";
 }
