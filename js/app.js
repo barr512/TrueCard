@@ -350,6 +350,30 @@ function openDetail(card) {
   editSport.value = card.sport || "";
   editCurrentValue.value = card.currentValue || "";
   editNotes.value = card.notes || "";
+   saveEditButton.onclick = async () => {
+
+  card.player = editPlayer.value.trim();
+  card.year = editYear.value.trim();
+  card.setName = editSetName.value.trim();
+  card.manufacturer = editManufacturer.value.trim();
+  card.cardNumber = editCardNumber.value.trim();
+  card.sport = editSport.value.trim();
+  card.currentValue = Number(editCurrentValue.value || 0);
+  card.notes = editNotes.value.trim();
+
+  card.updatedAt = new Date().toISOString();
+
+  await saveCard(card);
+
+  editCardPanel.hidden = true;
+
+  await loadCards();
+
+  openDetail(card);
+
+  alert("Card updated successfully.");
+
+};   
 };
 
   detailDeleteButton.onclick = async () => {
