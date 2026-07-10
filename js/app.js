@@ -63,7 +63,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert(`Could not load saved cards:\n${error.message}`);
   }
 });
+function prepareManualCardForm() {
+  cardForm.reset();
+  clearScannedImages();
 
+  const recognitionStatus =
+    document.getElementById("recognitionStatus");
+
+  const recognizedCardDetails =
+    document.getElementById("recognizedCardDetails");
+
+  if (recognitionStatus) {
+    recognitionStatus.hidden = true;
+    recognitionStatus.style.display = "none";
+  }
+
+  if (recognizedCardDetails) {
+    recognizedCardDetails.hidden = true;
+    recognizedCardDetails.innerHTML = "";
+  }
+}
 cardForm.addEventListener("submit", async event => {
   event.preventDefault();
 
