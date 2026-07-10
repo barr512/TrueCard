@@ -5,6 +5,7 @@ const filterBy = document.getElementById("filterBy");
 const filterValue = document.getElementById("filterValue");
 const sortBy = document.getElementById("sortBy");
 const scanCardButton = document.querySelector('[data-nav="scanScreen"]');
+const addManualButton = document.getElementById("addManualButton");
 const totalCards = document.getElementById("totalCards");
 const totalValue = document.getElementById("totalValue");
 const portfolioCards = document.getElementById("portfolioCards");
