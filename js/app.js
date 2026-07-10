@@ -48,8 +48,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupNavigation();
   setupRecognitionListener();
 
-  if (scanCardButton) {
-    scanCardButton.addEventListener("click", () => {
+  if (addManualButton) {
+    addManualButton.addEventListener("click", () => {
+      prepareManualCardForm();
       navigateTo("scanScreen");
     });
   }
