@@ -41,6 +41,9 @@ let allCards = [];
 let selectedCard = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
+  console.log("TrueCard location:", window.location.href);
+  console.log("TrueCard origin:", window.location.origin);
+
   setupNavigation();
   setupRecognitionListener();
 
@@ -50,7 +53,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  await loadCards();
+  try {
+    await loadCards();
+    console.log(`Loaded ${allCards.length} stored cards.`);
+  } catch (error) {
+    console.error("Could not load saved cards:", error);
+    alert(`Could not load saved cards:\n${error.message}`);
+  }
 });
 
 cardForm.addEventListener("submit", async event => {
@@ -92,9 +101,12 @@ cardForm.addEventListener("submit", async event => {
 
   await saveCard(card);
 
-  cardForm.reset();
-  clearScannedImages();
-  await loadCards();
+const savedCards = await getAllCards();
+console.log("Cards currently stored:", savedCards.length);
+
+cardForm.reset();
+clearScannedImages();
+await loadCards();
   navigateTo("collectionScreen");
 });
 
