@@ -504,10 +504,31 @@ editNotes.value = card.notes || "";
   card.manufacturer = editManufacturer.value.trim();
   card.cardNumber = editCardNumber.value.trim();
   card.sport = editSport.value.trim();
-  card.currentValue = Number(editCurrentValue.value || 0);
-  card.notes = editNotes.value.trim();
+ card.currentValue = Number(editCurrentValue.value || 0);
 
-  card.updatedAt = new Date().toISOString();
+card.cardType =
+  editCardType.value === "graded"
+    ? "graded"
+    : "raw";
+
+card.gradingCompany =
+  card.cardType === "graded"
+    ? editGradingCompany.value.trim()
+    : "";
+
+card.professionalGrade =
+  card.cardType === "graded"
+    ? editProfessionalGrade.value.trim()
+    : "";
+
+card.certificationNumber =
+  card.cardType === "graded"
+    ? editCertificationNumber.value.trim()
+    : "";
+
+card.notes = editNotes.value.trim();
+
+card.updatedAt = new Date().toISOString();
 
   await saveCard(card);
 
@@ -543,12 +564,16 @@ function filterCards(query) {
   return allCards.filter(card => {
     return [
       card.player,
-      card.year,
-      card.setName,
-      card.manufacturer,
-      card.cardNumber,
-      card.sport,
-      card.currentValue
+card.year,
+card.setName,
+card.manufacturer,
+card.cardNumber,
+card.sport,
+card.currentValue,
+card.cardType,
+card.gradingCompany,
+card.professionalGrade,
+card.certificationNumber
     ]
       .join(" ")
       .toLowerCase()
@@ -603,12 +628,16 @@ function applySearch(cards) {
   return cards.filter(card => {
     return [
       card.player,
-      card.year,
-      card.setName,
-      card.manufacturer,
-      card.cardNumber,
-      card.sport,
-      card.currentValue
+card.year,
+card.setName,
+card.manufacturer,
+card.cardNumber,
+card.sport,
+card.currentValue,
+card.cardType,
+card.gradingCompany,
+card.professionalGrade,
+card.certificationNumber
     ]
       .filter(Boolean)
       .join(" ")
