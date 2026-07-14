@@ -107,7 +107,10 @@ function updateEditCardTypeFields() {
 }
 function prepareManualCardForm() {
   cardForm.reset();
-  clearScannedImages();
+clearScannedImages();
+
+cardType.value = "raw";
+updateCardTypeFields();
 
   const recognitionStatus =
     document.getElementById("recognitionStatus");
@@ -138,9 +141,26 @@ cardForm.addEventListener("submit", async event => {
     manufacturer: document.getElementById("manufacturer").value.trim(),
     cardNumber: document.getElementById("cardNumber").value.trim(),
     sport: document.getElementById("sport").value.trim(),
-    currentValue: Number(document.getElementById("currentValue").value || 0),
+currentValue: Number(document.getElementById("currentValue").value || 0),
 
-    purchasePrice: null,
+cardType: cardType.value || "raw",
+
+gradingCompany:
+  cardType.value === "graded"
+    ? gradingCompany.value.trim()
+    : "",
+
+professionalGrade:
+  cardType.value === "graded"
+    ? professionalGrade.value.trim()
+    : "",
+
+certificationNumber:
+  cardType.value === "graded"
+    ? certificationNumber.value.trim()
+    : "",
+
+purchasePrice: null,
     purchaseDate: null,
     salePrice: null,
     saleDate: null,
@@ -169,6 +189,10 @@ console.log("Cards currently stored:", savedCards.length);
 
 cardForm.reset();
 clearScannedImages();
+
+cardType.value = "raw";
+updateCardTypeFields();
+
 await loadCards();
   navigateTo("collectionScreen");
 });
@@ -307,7 +331,20 @@ function renderCards(cards) {
 
         <p>Card #: ${escapeHTML(card.cardNumber || "N/A")}</p>
 
-        <p>Value: ${formatCurrency(card.currentValue || 0)}</p>
+${
+  card.cardType === "graded"
+    ? `
+      <p>
+        <strong>
+          ${escapeHTML(card.gradingCompany || "Graded")}
+          ${escapeHTML(card.professionalGrade || "")}
+        </strong>
+      </p>
+    `
+    : `<p><strong>Raw Card</strong></p>`
+}
+
+<p>Value: ${formatCurrency(card.currentValue || 0)}</p>
 
         <div class="card-actions">
           <button data-view-id="${card.id}">View</button>
