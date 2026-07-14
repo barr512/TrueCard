@@ -76,7 +76,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log("TrueCard origin:", window.location.origin);
 
   setupNavigation();
-  setupRecognitionListener();
+setupRecognitionListener();
+setupCardTypeControls();
 
   if (addManualButton) {
     addManualButton.addEventListener("click", () => {
@@ -93,6 +94,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert(`Could not load saved cards:\n${error.message}`);
   }
 });
+function setupCardTypeControls() {
+  ...
+}
+
+function updateCardTypeFields() {
+  ...
+}
+
+function updateEditCardTypeFields() {
+  ...
+}
 function prepareManualCardForm() {
   cardForm.reset();
   clearScannedImages();
