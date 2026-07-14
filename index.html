@@ -585,21 +585,9 @@
 
   </div>
 
-  <script>
-  const buildVersion = Date.now();
-
-  [
-    "js/database.js",
-    "js/cardsight.js",
-    "js/camera.js",
-    "js/app.js"
-  ].forEach(file => {
-    const script = document.createElement("script");
-    script.src = `${file}?v=${buildVersion}`;
-    script.defer = false;
-    document.body.appendChild(script);
-  });
-</script>
-
+ <script src="js/database.js?v=graded-test-1"></script>
+<script src="js/cardsight.js?v=graded-test-1"></script>
+<script src="js/camera.js?v=graded-test-1"></script>
+<script src="js/app.js?v=graded-test-1"></script>
 </body>
 </html>
