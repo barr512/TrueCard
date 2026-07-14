@@ -96,7 +96,48 @@
               <span class="spinner"></span>
               <span>Recognizing card...</span>
             </div>
+<label class="field-label">
+  Card Type
+  <select id="cardType">
+    <option value="raw">Raw Card</option>
+    <option value="graded">Graded Card</option>
+  </select>
+</label>
 
+<div id="gradedCardFields" hidden>
+
+  <label class="field-label">
+    Grading Company
+    <select id="gradingCompany">
+      <option value="">Select grading company</option>
+      <option value="PSA">PSA</option>
+      <option value="SGC">SGC</option>
+      <option value="BGS">Beckett / BGS</option>
+      <option value="CGC">CGC</option>
+      <option value="CSG">CSG</option>
+      <option value="TAG">TAG</option>
+      <option value="HGA">HGA</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+
+  <label class="field-label">
+    Professional Grade
+    <input
+      id="professionalGrade"
+      placeholder="Example: 10, 9.5, Authentic"
+    />
+  </label>
+
+  <label class="field-label">
+    Certification Number
+    <input
+      id="certificationNumber"
+      placeholder="Certification number"
+    />
+  </label>
+
+</div>
             <label class="field-label">
               Player
               <input id="player" placeholder="Player name" required />
@@ -279,7 +320,25 @@
                 Owned
               </strong>
             </div>
+<div>
+  <span>Card Type</span>
+  <strong id="detailCardType">Raw Card</strong>
+</div>
 
+<div id="detailGradingCompanyRow" hidden>
+  <span>Grading Company</span>
+  <strong id="detailGradingCompany">—</strong>
+</div>
+
+<div id="detailGradeRow" hidden>
+  <span>Professional Grade</span>
+  <strong id="detailProfessionalGrade">—</strong>
+</div>
+
+<div id="detailCertificationRow" hidden>
+  <span>Certification Number</span>
+  <strong id="detailCertificationNumber">—</strong>
+</div>
           </div>
 
           <div class="detail-section">
@@ -348,7 +407,48 @@
     Current Value
     <input id="editCurrentValue" type="number" step="0.01" />
   </label>
+<label>
+  Card Type
+  <select id="editCardType">
+    <option value="raw">Raw Card</option>
+    <option value="graded">Graded Card</option>
+  </select>
+</label>
 
+<div id="editGradedCardFields" hidden>
+
+  <label>
+    Grading Company
+    <select id="editGradingCompany">
+      <option value="">Select grading company</option>
+      <option value="PSA">PSA</option>
+      <option value="SGC">SGC</option>
+      <option value="BGS">Beckett / BGS</option>
+      <option value="CGC">CGC</option>
+      <option value="CSG">CSG</option>
+      <option value="TAG">TAG</option>
+      <option value="HGA">HGA</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+
+  <label>
+    Professional Grade
+    <input
+      id="editProfessionalGrade"
+      placeholder="Example: 10, 9.5, Authentic"
+    />
+  </label>
+
+  <label>
+    Certification Number
+    <input
+      id="editCertificationNumber"
+      placeholder="Certification number"
+    />
+  </label>
+
+</div>
   <label>
     Notes
     <input id="editNotes" />
