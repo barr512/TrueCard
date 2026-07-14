@@ -95,15 +95,49 @@ setupCardTypeControls();
   }
 });
 function setupCardTypeControls() {
-  ...
+  if (cardType) {
+    cardType.addEventListener("change", updateCardTypeFields);
+  }
+
+  if (editCardType) {
+    editCardType.addEventListener(
+      "change",
+      updateEditCardTypeFields
+    );
+  }
+
+  updateCardTypeFields();
+  updateEditCardTypeFields();
 }
 
 function updateCardTypeFields() {
-  ...
+  const isGraded =
+    cardType && cardType.value === "graded";
+
+  if (gradedCardFields) {
+    gradedCardFields.hidden = !isGraded;
+  }
+
+  if (scanFrontButton) {
+    scanFrontButton.textContent = isGraded
+      ? "Scan Slab Front"
+      : "Scan Front";
+  }
+
+  if (scanBackButton) {
+    scanBackButton.textContent = isGraded
+      ? "Scan Slab Back"
+      : "Scan Back";
+  }
 }
 
 function updateEditCardTypeFields() {
-  ...
+  const isGraded =
+    editCardType && editCardType.value === "graded";
+
+  if (editGradedCardFields) {
+    editGradedCardFields.hidden = !isGraded;
+  }
 }
 function prepareManualCardForm() {
   cardForm.reset();
