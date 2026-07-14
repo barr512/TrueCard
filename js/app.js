@@ -415,7 +415,24 @@ function openDetail(card) {
   detailNumber.textContent = card.cardNumber || "—";
   detailSport.textContent = card.sport || "—";
   detailValue.textContent = formatCurrency(card.currentValue || 0);
+const isGraded = card.cardType === "graded";
 
+detailCardType.textContent = isGraded
+  ? "Graded Card"
+  : "Raw Card";
+
+detailGradingCompanyRow.hidden = !isGraded;
+detailGradeRow.hidden = !isGraded;
+detailCertificationRow.hidden = !isGraded;
+
+detailGradingCompany.textContent =
+  card.gradingCompany || "—";
+
+detailProfessionalGrade.textContent =
+  card.professionalGrade || "—";
+
+detailCertificationNumber.textContent =
+  card.certificationNumber || "—";
   detailStatus.textContent = card.sold
     ? "Sold"
     : card.wishlist
@@ -461,7 +478,24 @@ function openDetail(card) {
   editCardNumber.value = card.cardNumber || "";
   editSport.value = card.sport || "";
   editCurrentValue.value = card.currentValue || "";
-  editNotes.value = card.notes || "";
+
+editCardType.value =
+  card.cardType === "graded"
+    ? "graded"
+    : "raw";
+
+editGradingCompany.value =
+  card.gradingCompany || "";
+
+editProfessionalGrade.value =
+  card.professionalGrade || "";
+
+editCertificationNumber.value =
+  card.certificationNumber || "";
+
+updateEditCardTypeFields();
+
+editNotes.value = card.notes || "";
    saveEditButton.onclick = async () => {
 
   card.player = editPlayer.value.trim();
