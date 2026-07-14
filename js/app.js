@@ -4,6 +4,11 @@ const searchInput = document.getElementById("searchInput");
 const filterBy = document.getElementById("filterBy");
 const filterValue = document.getElementById("filterValue");
 const sortBy = document.getElementById("sortBy");
+const cardType = document.getElementById("cardType");
+const gradedCardFields = document.getElementById("gradedCardFields");
+const gradingCompany = document.getElementById("gradingCompany");
+const professionalGrade = document.getElementById("professionalGrade");
+const certificationNumber = document.getElementById("certificationNumber");
 const scanCardButton = document.querySelector('[data-nav="scanScreen"]');
 const addManualButton = document.getElementById("addManualButton");
 const totalCards = document.getElementById("totalCards");
@@ -23,6 +28,19 @@ const detailSport = document.getElementById("detailSport");
 const detailStatus = document.getElementById("detailStatus");
 const detailValue = document.getElementById("detailValue");
 const detailNotes = document.getElementById("detailNotes");
+const detailCardType = document.getElementById("detailCardType");
+const detailGradingCompany = document.getElementById("detailGradingCompany");
+const detailProfessionalGrade = document.getElementById("detailProfessionalGrade");
+const detailCertificationNumber = document.getElementById("detailCertificationNumber");
+
+const detailGradingCompanyRow =
+  document.getElementById("detailGradingCompanyRow");
+
+const detailGradeRow =
+  document.getElementById("detailGradeRow");
+
+const detailCertificationRow =
+  document.getElementById("detailCertificationRow");
 const detailFrontImage = document.getElementById("detailFrontImage");
 const detailBackImage = document.getElementById("detailBackImage");
 const detailCopySearchButton = document.getElementById("detailCopySearchButton");
@@ -36,6 +54,18 @@ const editManufacturer = document.getElementById("editManufacturer");
 const editCardNumber = document.getElementById("editCardNumber");
 const editSport = document.getElementById("editSport");
 const editCurrentValue = document.getElementById("editCurrentValue");
+const editCardType = document.getElementById("editCardType");
+const editGradedCardFields =
+  document.getElementById("editGradedCardFields");
+
+const editGradingCompany =
+  document.getElementById("editGradingCompany");
+
+const editProfessionalGrade =
+  document.getElementById("editProfessionalGrade");
+
+const editCertificationNumber =
+  document.getElementById("editCertificationNumber");
 const editNotes = document.getElementById("editNotes");
 const saveEditButton = document.getElementById("saveEditButton");
 let allCards = [];
