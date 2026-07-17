@@ -1144,6 +1144,12 @@ function wireCardButtons() {
 function openDetail(card) {
   selectedCard = card;
 
+  // Never carry an edit form from a previously viewed card
+  // into the newly opened card profile.
+  if (editCardPanel) {
+    editCardPanel.hidden = true;
+  }
+
   detailPlayer.textContent = card.player || "Unknown Player";
 
   detailSubtitle.textContent = [
