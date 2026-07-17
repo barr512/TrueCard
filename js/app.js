@@ -16,6 +16,16 @@ const totalValue = document.getElementById("totalValue");
 const portfolioCards = document.getElementById("portfolioCards");
 const portfolioValue = document.getElementById("portfolioValue");
 
+const cardSetForm = document.getElementById("cardSetForm");
+const cardSetList = document.getElementById("cardSetList");
+const setYear = document.getElementById("setYear");
+const setManufacturer = document.getElementById("setManufacturer");
+const trackedSetName = document.getElementById("trackedSetName");
+const setSport = document.getElementById("setSport");
+const setGeneralGrade = document.getElementById("setGeneralGrade");
+const setCardCount = document.getElementById("setCardCount");
+const setNotes = document.getElementById("setNotes");
+
 const screenTitle = document.getElementById("screenTitle");
 
 const detailPlayer = document.getElementById("detailPlayer");
@@ -92,6 +102,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupNavigation();
 setupRecognitionListener();
 setupCardTypeControls();
+  setupSetTracking();
 
   if (addManualButton) {
     addManualButton.addEventListener("click", () => {
@@ -101,7 +112,10 @@ setupCardTypeControls();
   }
 
   try {
-    await loadCards();
+    await Promise.all([
+      loadCards(),
+      loadCardSets()
+    ]);
     console.log(`Loaded ${allCards.length} stored cards.`);
   } catch (error) {
     console.error("Could not load saved cards:", error);
@@ -362,6 +376,7 @@ function navigateTo(screenId) {
     scanScreen: "Scan",
     collectionScreen: "Collection",
     detailScreen: "Card Details",
+    setsScreen: "Sets",
     portfolioScreen: "Portfolio",
     settingsScreen: "Settings"
   };
@@ -696,6 +711,141 @@ card.updatedAt = new Date().toISOString();
   };
 
   navigateTo("detailScreen");
+}
+
+function setupSetTracking() {
+  if (!cardSetForm) return;
+
+  cardSetForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const year = setYear.value.trim();
+    const manufacturer = setManufacturer.value.trim();
+
+    if (!year || !manufacturer) {
+      alert("Year and manufacturer are required.");
+      return;
+    }
+
+    await saveCardSet({
+      year,
+      manufacturer,
+      setName: trackedSetName.value.trim(),
+      sport: setSport.value || "Baseball",
+      generalGrade: setGeneralGrade.value.trim(),
+      cardCount: setCardCount.value
+        ? Number(setCardCount.value)
+        : null,
+      notes: setNotes.value.trim()
+    });
+
+    cardSetForm.reset();
+    setSport.value = "Baseball";
+    await loadCardSets();
+  });
+}
+
+async function loadCardSets() {
+  if (!cardSetList || typeof getAllCardSets !== "function") {
+    return;
+  }
+
+  const sets = await getAllCardSets();
+  sets.sort((a, b) => {
+    const yearDifference =
+      Number(b.year || 0) - Number(a.year || 0);
+
+    if (yearDifference) return yearDifference;
+
+    return String(a.manufacturer || "").localeCompare(
+      String(b.manufacturer || "")
+    );
+  });
+
+  renderCardSets(sets);
+}
+
+function renderCardSets(sets) {
+  cardSetList.innerHTML = "";
+
+  if (!sets.length) {
+    cardSetList.innerHTML = `
+      <div class="panel">
+        <p class="helper-text">
+          No sets tracked yet. Add a complete or partial set above.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  sets.forEach(cardSet => {
+    const element = document.createElement("article");
+    element.className = "set-card";
+
+    element.innerHTML = `
+      <div class="set-card-heading">
+        <div>
+          <p class="compact-card-kicker">
+            ${escapeHTML(
+              [cardSet.year, cardSet.sport]
+                .filter(Boolean)
+                .join(" • ")
+            )}
+          </p>
+          <h3>
+            ${escapeHTML(
+              cardSet.setName ||
+              cardSet.manufacturer ||
+              "Unnamed set"
+            )}
+          </h3>
+          <p>
+            ${escapeHTML(cardSet.manufacturer || "")}
+          </p>
+        </div>
+
+        ${cardSet.cardCount != null
+          ? `<strong>${Number(cardSet.cardCount).toLocaleString()} cards</strong>`
+          : ""}
+      </div>
+
+      <div class="compact-card-badges">
+        ${cardSet.generalGrade
+          ? `<span>${escapeHTML(cardSet.generalGrade)}</span>`
+          : ""}
+        <span>${escapeHTML(cardSet.sport || "Other")}</span>
+      </div>
+
+      ${cardSet.notes
+        ? `<p class="set-notes">${escapeHTML(cardSet.notes)}</p>`
+        : ""}
+
+      <button
+        type="button"
+        class="delete-btn set-delete"
+        data-delete-set-id="${cardSet.id}"
+      >
+        Delete Set
+      </button>
+    `;
+
+    cardSetList.appendChild(element);
+  });
+
+  document.querySelectorAll("[data-delete-set-id]")
+    .forEach(button => {
+      button.addEventListener("click", async () => {
+        const confirmed = confirm(
+          "Delete this tracked set? Individual card records will not be affected."
+        );
+
+        if (!confirmed) return;
+
+        await deleteCardSet(button.dataset.deleteSetId);
+        await loadCardSets();
+      });
+    });
 }
 
 function filterCards(query) {
