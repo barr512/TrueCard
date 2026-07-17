@@ -771,9 +771,38 @@
 
           <h2>Settings</h2>
 
-          <p class="helper-text">
-            Preferences, backups and exports coming soon.
-          </p>
+          <div class="settings-section">
+            <p class="detail-label">Local data protection</p>
+            <h3>Backup and Restore</h3>
+
+            <p class="helper-text">
+              A complete backup includes cards, card images, sets,
+              grading information, notes, and saved recognition results.
+            </p>
+
+            <button id="exportBackupButton" type="button">
+              Export Complete Backup
+            </button>
+
+            <label class="restore-button" for="restoreBackupInput">
+              Choose Backup to Restore
+            </label>
+
+            <input
+              id="restoreBackupInput"
+              type="file"
+              accept=".json,application/json"
+              hidden
+            />
+
+            <p class="settings-note">
+              Restoring merges the backup with data already on this
+              device. It does not delete existing cards and does not
+              call CardSight.
+            </p>
+
+            <div id="backupStatus" class="backup-status" hidden></div>
+          </div>
 
         </div>
 
