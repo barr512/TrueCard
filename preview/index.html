@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>TrueCard</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/app.css" />
+  <meta name="theme-color" content="#0f172a" />
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <header class="top-bar">
+      <div>
+        <p class="eyebrow">TrueCard</p>
+        <h1 id="screenTitle">Home</h1>
+      </div>
+    </header>
+
+    <main class="screen-area">
+
+      <!-- HOME -->
+
+      <section id="homeScreen" class="screen active">
+
+        <div class="hero-card">
+          <p class="hero-label">Your collection, intelligently managed.</p>
+          <h2>Build your card portfolio.</h2>
+
+          <p>
+            Scan cards, track values, and manage your collection from your phone.
+          </p>
+
+          <div class="home-action-buttons">
+
+  <button class="primary-action" data-nav="scanScreen">
+    Scan a Card
+  </button>
+
+  <button
+    id="addManualButton"
+    type="button"
+    class="secondary-btn"
+  >
+    Add Manually
+  </button>
+
+</div>
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <span>Total Cards</span>
+            <strong id="totalCards">0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Collection Value</span>
+            <strong id="totalValue">$0.00</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- SCAN -->
+
+      <section id="scanScreen" class="screen">
+
+        <div class="panel">
+
+          <h2>Add Card</h2>
+
+          <p class="helper-text">
+            Scan front and back images, then enter card details.
+          </p>
+
+          <div class="scan-row">
+            <button type="button" id="scanFrontButton">Scan Front</button>
+            <button type="button" id="scanBackButton">Scan Back</button>
+          </div>
+
+          <div class="preview-row">
+            <img id="frontPreview" class="image-preview" hidden />
+            <img id="backPreview" class="image-preview" hidden />
+          </div>
+
+          <form id="cardForm">
+
+            <div id="recognitionStatus" class="recognition-status" hidden>
+              <span class="spinner"></span>
+              <span>Recognizing card...</span>
+            </div>
+<label class="field-label">
+  Card Type
+  <select id="cardType">
+    <option value="raw">Raw Card</option>
+    <option value="graded">Graded Card</option>
+  </select>
+</label>
+
+<div id="gradedCardFields" hidden>
+
+  <label class="field-label">
+    Grading Company
+    <select id="gradingCompany">
+      <option value="">Select grading company</option>
+      <option value="PSA">PSA</option>
+      <option value="SGC">SGC</option>
+      <option value="BGS">Beckett / BGS</option>
+      <option value="CGC">CGC</option>
+      <option value="CSG">CSG</option>
+      <option value="TAG">TAG</option>
+      <option value="HGA">HGA</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+
+  <label class="field-label">
+    Professional Grade
+    <input
+      id="professionalGrade"
+      placeholder="Example: 10, 9.5, Authentic"
+    />
+  </label>
+
+  <label class="field-label">
+    Certification Number
+    <input
+      id="certificationNumber"
+      placeholder="Certification number"
+    />
+  </label>
+
+</div>
+            <label class="field-label">
+              Player
+              <input id="player" placeholder="Player name" required />
+            </label>
+
+            <label class="field-label">
+  Year
+  <input
+    id="year"
+    placeholder="Example: 1972 or 1972-1973"
+    type="text"
+    inputmode="numeric"
+  />
+</label>
+
+            <div class="form-section">
+              <h3>Card details</h3>
+
+              <label class="field-label">
+                Set
+                <input id="setName" placeholder="Base Set" />
+              </label>
+
+              <label class="field-label">
+                Release
+                <input id="releaseName" placeholder="Upper Deck Baseball" />
+              </label>
+
+              <label class="field-label">
+                Manufacturer
+                <input id="manufacturer" placeholder="Upper Deck" />
+              </label>
+            </div>
+
+            <label class="field-label">
+              Card Number
+              <input id="cardNumber" placeholder="Card number" />
+            </label>
+
+            <label class="field-label">
+              Sport
+              <select id="sport">
+                <option value="Baseball">Baseball</option>
+                <option value="Football">Football</option>
+                <option value="Basketball">Basketball</option>
+                <option value="Hockey">Hockey</option>
+                <option value="Soccer">Soccer</option>
+                <option value="Pokemon TCG">Pokémon TCG</option>
+                <option value="Magic: The Gathering">Magic: The Gathering</option>
+                <option value="One Piece TCG">One Piece TCG</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <div class="form-section">
+              <h3>Grade estimate</h3>
+
+              <p class="grading-disclaimer">
+                Photo-based estimates can miss surface damage, alterations,
+                creases, and other defects. This is not a professional grade.
+              </p>
+
+              <button id="gradeCardButton" type="button" class="grade-action">
+                Estimate Grade from Photos
+              </button>
+
+              <div id="gradingStatus" class="recognition-status" hidden>
+                <span class="spinner"></span>
+                <span>Analyzing front and back images…</span>
+              </div>
+
+              <label class="field-label">
+                Suggested grade range
+                <input id="suggestedGrade" placeholder="Example: 7–8 or NM–MT" />
+              </label>
+
+              <label class="field-label">
+                Grade explanation
+                <textarea id="gradeExplanation" rows="3" placeholder="Visible condition notes and reasons for the estimate"></textarea>
+              </label>
+            </div>
+
+            <div class="form-section">
+              <h3>Value and purchase</h3>
+
+              <div class="form-grid">
+                <label class="field-label">
+                  Current value
+                  <input id="currentValue" placeholder="0.00" type="number" step="0.01" />
+                </label>
+
+                <label class="field-label">
+                  Value source
+                  <input id="valueSource" placeholder="Example: recent sold comps" />
+                </label>
+
+                <label class="field-label">
+                  Purchase price
+                  <input id="purchasePrice" placeholder="0.00" type="number" step="0.01" />
+                </label>
+
+                <label class="field-label">
+                  Purchase date
+                  <input id="purchaseDate" type="date" />
+                </label>
+
+                <label class="field-label">
+                  Desired sale price
+                  <input id="desiredSalePrice" placeholder="0.00" type="number" step="0.01" />
+                </label>
+
+                <label class="field-label">
+                  Sale platform
+                  <select id="salePlatform">
+                    <option value="eBay">eBay</option>
+                    <option value="WhatNot">WhatNot</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </label>
+              </div>
+
+              <label class="field-label">
+                Notes
+                <textarea id="notes" rows="3" placeholder="Optional notes"></textarea>
+              </label>
+            </div>
+
+            <div id="recognizedCardDetails" class="recognized-card-details" hidden></div>
+
+            <button type="submit">Save to Collection</button>
+
+          </form>
+
+        </div>
+
+      </section>
+            <!-- COLLECTION -->
+
+      <section id="collectionScreen" class="screen">
+
+        <div class="panel">
+
+          <h2>Collection</h2>
+
+         <div class="collection-controls">
+
+  <input
+    id="searchInput"
+    placeholder="Search player, year, set, manufacturer..."
+  />
+
+  <select id="filterBy">
+    <option value="all">All Cards</option>
+    <option value="favorites">Favorites</option>
+    <option value="wishlist">Wishlist</option>
+    <option value="sold">Sold</option>
+    <option value="year">Filter by Year</option>
+    <option value="sport">Filter by Sport</option>
+    <option value="manufacturer">Filter by Manufacturer</option>
+    <option value="set">Filter by Set</option>
+  </select>
+
+  <select id="filterValue">
+    <option value="">All</option>
+  </select>
+
+  <select id="sortBy">
+    <option value="favorites">Favorites First</option>
+    <option value="newest">Newest Added</option>
+    <option value="oldest">Oldest Added</option>
+    <option value="highValue">Highest Value</option>
+    <option value="lowValue">Lowest Value</option>
+    <option value="playerAZ">Player A–Z</option>
+    <option value="playerZA">Player Z–A</option>
+    <option value="yearNewest">Year Newest</option>
+    <option value="yearOldest">Year Oldest</option>
+  </select>
+
+</div>
+
+        </div>
+
+        <div id="cardList" class="card-list"></div>
+
+      </section>
+
+      <!-- CARD DETAIL -->
+
+      <section id="detailScreen" class="screen">
+
+        <div class="panel detail-panel">
+
+          <button
+            class="secondary-btn"
+            data-nav="collectionScreen"
+            style="margin-bottom:16px;"
+          >
+            ← Back to Collection
+          </button>
+
+          <div class="detail-image-grid">
+
+            <img
+              id="detailFrontImage"
+              class="card-image"
+              hidden
+            >
+
+            <img
+              id="detailBackImage"
+              class="card-image"
+              hidden
+            >
+
+          </div>
+
+          <div class="detail-header">
+
+            <p class="detail-label">
+              Card Profile
+            </p>
+
+            <h2 id="detailPlayer">
+              Player
+            </h2>
+
+            <p
+              id="detailSubtitle"
+              class="detail-subtitle"
+            ></p>
+
+          </div>
+
+          <div class="detail-value-card">
+
+            <span>Current Value</span>
+
+            <strong id="detailValue"></strong>
+
+          </div>
+
+          <div class="detail-grid">
+
+            <div>
+              <span>Year</span>
+              <strong id="detailYear"></strong>
+            </div>
+
+            <div>
+              <span>Set</span>
+              <strong id="detailSet"></strong>
+            </div>
+
+            <div>
+              <span>Release</span>
+              <strong id="detailRelease"></strong>
+            </div>
+
+            <div>
+              <span>Manufacturer</span>
+              <strong id="detailManufacturer"></strong>
+            </div>
+
+            <div>
+              <span>Card Number</span>
+              <strong id="detailNumber"></strong>
+            </div>
+
+            <div>
+              <span>Sport</span>
+              <strong id="detailSport"></strong>
+            </div>
+
+            <div>
+              <span>Status</span>
+              <strong id="detailStatus">
+                Owned
+              </strong>
+            </div>
+<div>
+  <span>Card Type</span>
+  <strong id="detailCardType">Raw Card</strong>
+</div>
+
+<div id="detailGradingCompanyRow" hidden>
+  <span>Grading Company</span>
+  <strong id="detailGradingCompany">—</strong>
+</div>
+
+<div id="detailGradeRow" hidden>
+  <span>Professional Grade</span>
+  <strong id="detailProfessionalGrade">—</strong>
+</div>
+
+<div id="detailCertificationRow" hidden>
+  <span>Certification Number</span>
+  <strong id="detailCertificationNumber">—</strong>
+</div>
+
+<div>
+  <span>Suggested Grade</span>
+  <strong id="detailSuggestedGrade">—</strong>
+</div>
+
+<div>
+  <span>Purchase Price</span>
+  <strong id="detailPurchasePrice">—</strong>
+</div>
+
+<div>
+  <span>Desired Sale Price</span>
+  <strong id="detailDesiredSalePrice">—</strong>
+</div>
+
+<div>
+  <span>Value Source</span>
+  <strong id="detailValueSource">—</strong>
+</div>
+          </div>
+
+          <div class="detail-section">
+            <h3>Grade estimate</h3>
+            <p id="detailGradeExplanation" class="helper-text">
+              No grade estimate yet.
+            </p>
+          </div>
+
+          <div class="detail-section">
+
+            <h3>Market Tools</h3>
+
+            <p class="helper-text">
+              Copy a search phrase for recent sales and comps.
+            </p>
+
+            <button
+              id="detailCopySearchButton"
+              type="button"
+            >
+              Copy Search Text
+            </button>
+
+          </div>
+
+          <div class="detail-section">
+
+            <h3>Notes</h3>
+
+            <p
+              id="detailNotes"
+              class="helper-text"
+            >
+              No notes yet.
+            </p>
+
+          </div>
+
+          <div id="editCardPanel" class="edit-panel" hidden>
+
+  <label>
+    Player
+    <input id="editPlayer" />
+  </label>
+
+  <label>
+  Year
+  <input
+    id="editYear"
+    type="text"
+    inputmode="numeric"
+    placeholder="Example: 1972 or 1972-1973"
+  />
+</label>
+
+  <label>
+    Set
+    <input id="editSetName" />
+  </label>
+
+  <label>
+    Release
+    <input id="editReleaseName" />
+  </label>
+
+  <label>
+    Manufacturer
+    <input id="editManufacturer" />
+  </label>
+
+  <label>
+    Card Number
+    <input id="editCardNumber" />
+  </label>
+
+  <label>
+    Sport
+    <select id="editSport">
+      <option value="Baseball">Baseball</option>
+      <option value="Football">Football</option>
+      <option value="Basketball">Basketball</option>
+      <option value="Hockey">Hockey</option>
+      <option value="Soccer">Soccer</option>
+      <option value="Pokemon TCG">Pokémon TCG</option>
+      <option value="Magic: The Gathering">Magic: The Gathering</option>
+      <option value="One Piece TCG">One Piece TCG</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+
+  <label>
+    Current Value
+    <input id="editCurrentValue" type="number" step="0.01" />
+  </label>
+
+  <label>
+    Value Source
+    <input id="editValueSource" />
+  </label>
+
+  <label>
+    Purchase Price
+    <input id="editPurchasePrice" type="number" step="0.01" />
+  </label>
+
+  <label>
+    Purchase Date
+    <input id="editPurchaseDate" type="date" />
+  </label>
+
+  <label>
+    Desired Sale Price
+    <input id="editDesiredSalePrice" type="number" step="0.01" />
+  </label>
+
+  <label>
+    Sale Platform
+    <select id="editSalePlatform">
+      <option value="eBay">eBay</option>
+      <option value="WhatNot">WhatNot</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+
+  <label>
+    Suggested Grade
+    <input id="editSuggestedGrade" />
+  </label>
+
+  <label>
+    Grade Explanation
+    <textarea id="editGradeExplanation" rows="3"></textarea>
+  </label>
+<label>
+  Card Type
+  <select id="editCardType">
+    <option value="raw">Raw Card</option>
+    <option value="graded">Graded Card</option>
+  </select>
+</label>
+
+<div id="editGradedCardFields" hidden>
+
+  <label>
+    Grading Company
+    <select id="editGradingCompany">
+      <option value="">Select grading company</option>
+      <option value="PSA">PSA</option>
+      <option value="SGC">SGC</option>
+      <option value="BGS">Beckett / BGS</option>
+      <option value="CGC">CGC</option>
+      <option value="CSG">CSG</option>
+      <option value="TAG">TAG</option>
+      <option value="HGA">HGA</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+
+  <label>
+    Professional Grade
+    <input
+      id="editProfessionalGrade"
+      placeholder="Example: 10, 9.5, Authentic"
+    />
+  </label>
+
+  <label>
+    Certification Number
+    <input
+      id="editCertificationNumber"
+      placeholder="Certification number"
+    />
+  </label>
+
+</div>
+  <label>
+    Notes
+    <textarea id="editNotes" rows="3"></textarea>
+  </label>
+
+  <button id="saveEditButton" type="button">
+    Save Changes
+  </button>
+
+</div>
+
+<div class="card-actions">
+
+  <button id="detailEditButton">
+    Edit
+  </button>
+
+  <button
+    id="detailDeleteButton"
+    class="delete-btn"
+  >
+    Delete
+  </button>
+
+</div>
+
+        </div>
+
+      </section>
+      <!-- SETS -->
+
+      <section id="setsScreen" class="screen">
+
+        <div class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="detail-label">Set tracking</p>
+              <h2>My Sets</h2>
+            </div>
+          </div>
+
+          <p class="helper-text">
+            Track complete or partial sets without scanning every card.
+          </p>
+
+          <form id="cardSetForm" class="set-form">
+            <div class="form-grid">
+              <label class="field-label">
+                Year *
+                <input id="setYear" required placeholder="1989" />
+              </label>
+
+              <label class="field-label">
+                Manufacturer *
+                <input id="setManufacturer" required placeholder="Upper Deck" />
+              </label>
+
+              <label class="field-label">
+                Set name
+                <input id="trackedSetName" placeholder="Upper Deck Baseball" />
+              </label>
+
+              <label class="field-label">
+                Sport
+                <select id="setSport">
+                  <option value="Baseball">Baseball</option>
+                  <option value="Football">Football</option>
+                  <option value="Basketball">Basketball</option>
+                  <option value="Hockey">Hockey</option>
+                  <option value="Soccer">Soccer</option>
+                  <option value="Pokemon TCG">Pokémon TCG</option>
+                  <option value="Magic: The Gathering">Magic: The Gathering</option>
+                  <option value="One Piece TCG">One Piece TCG</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label class="field-label">
+                General grade
+                <input id="setGeneralGrade" placeholder="NM–MT or 7–8" />
+              </label>
+
+              <label class="field-label">
+                Approximate card count
+                <input id="setCardCount" type="number" min="0" placeholder="792" />
+              </label>
+            </div>
+
+            <label class="field-label">
+              Notes
+              <textarea id="setNotes" rows="3" placeholder="Complete, partial, missing cards, bulk storage, or other notes"></textarea>
+            </label>
+
+            <button type="submit">Add Set</button>
+          </form>
+        </div>
+
+        <div id="cardSetList" class="set-list"></div>
+
+      </section>
+
+            <!-- PORTFOLIO -->
+
+      <section id="portfolioScreen" class="screen">
+
+        <div class="panel">
+
+          <h2>Portfolio</h2>
+
+          <p class="helper-text">
+            Profit/loss, charts and collection analytics coming soon.
+          </p>
+
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <span>Current Value</span>
+            <strong id="portfolioValue">$0.00</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Cards Tracked</span>
+            <strong id="portfolioCards">0</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- SETTINGS -->
+
+      <section id="settingsScreen" class="screen">
+
+        <div class="panel">
+
+          <h2>Settings</h2>
+
+          <div class="settings-section">
+            <p class="detail-label">Local data protection</p>
+            <h3>Backup and Restore</h3>
+
+            <p class="helper-text">
+              A complete backup includes cards, card images, sets,
+              grading information, notes, and saved recognition results.
+            </p>
+
+            <button id="exportBackupButton" type="button">
+              Export Complete Backup
+            </button>
+
+            <label class="restore-button" for="restoreBackupInput">
+              Choose Backup to Restore
+            </label>
+
+            <input
+              id="restoreBackupInput"
+              type="file"
+              accept=".json,application/json"
+              hidden
+            />
+
+            <p class="settings-note">
+              Restoring merges the backup with data already on this
+              device. It does not delete existing cards and does not
+              call CardSight.
+            </p>
+
+            <div id="backupStatus" class="backup-status" hidden></div>
+          </div>
+
+          <div class="settings-section">
+            <p class="detail-label">Collection transfer</p>
+            <h3>Import Cards from CSV</h3>
+
+            <p class="helper-text">
+              Import an existing collection list without scanning cards.
+              Common column names such as Player, Year, Set,
+              Manufacturer, Card Number, Sport, Value, and Notes
+              are recognized automatically.
+            </p>
+
+            <button id="downloadCsvTemplateButton" type="button" class="secondary-btn">
+              Download CSV Template
+            </button>
+
+            <label class="restore-button" for="csvImportInput">
+              Choose CSV File
+            </label>
+
+            <input
+              id="csvImportInput"
+              type="file"
+              accept=".csv,text/csv"
+              hidden
+            />
+
+            <p class="settings-note">
+              CSV importing never calls CardSight or AI grading.
+              Importing the same unchanged file again skips rows that
+              were already imported. Duplicate cards listed on
+              separate rows remain separate cards.
+            </p>
+
+            <div id="csvImportStatus" class="backup-status" hidden></div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <nav class="bottom-nav">
+
+      <button data-nav="homeScreen" class="active">
+        Home
+      </button>
+
+      <button data-nav="scanScreen">
+        Scan
+      </button>
+
+      <button data-nav="collectionScreen">
+        Collection
+      </button>
+
+      <button data-nav="setsScreen">
+        Sets
+      </button>
+
+      <button data-nav="settingsScreen">
+        Settings
+      </button>
+
+    </nav>
+
+  </div>
+
+  <div id="cameraModal" class="camera-modal">
+
+    <div class="camera-box">
+
+      <video
+        id="cameraVideo"
+        autoplay
+        playsinline
+      ></video>
+
+      <div class="camera-actions">
+
+        <button
+          id="captureButton"
+          type="button"
+        >
+          Capture
+        </button>
+
+        <button
+          id="closeCameraButton"
+          type="button"
+          class="secondary-btn"
+        >
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+ <script src="js/database.js?v=graded-test-1"></script>
+<script src="js/cardsight.js?v=graded-test-1"></script>
+<script src="js/camera.js?v=graded-test-1"></script>
+<script src="js/grading.js?v=base44-rework-1"></script>
+<script src="js/app.js?v=base44-rework-1"></script>
+</body>
+</html>
