@@ -195,6 +195,20 @@
             <div class="form-section">
               <h3>Grade estimate</h3>
 
+              <p class="grading-disclaimer">
+                Photo-based estimates can miss surface damage, alterations,
+                creases, and other defects. This is not a professional grade.
+              </p>
+
+              <button id="gradeCardButton" type="button" class="grade-action">
+                Estimate Grade from Photos
+              </button>
+
+              <div id="gradingStatus" class="recognition-status" hidden>
+                <span class="spinner"></span>
+                <span>Analyzing front and back images…</span>
+              </div>
+
               <label class="field-label">
                 Suggested grade range
                 <input id="suggestedGrade" placeholder="Example: 7–8 or NM–MT" />
@@ -829,6 +843,7 @@
  <script src="js/database.js?v=graded-test-1"></script>
 <script src="js/cardsight.js?v=graded-test-1"></script>
 <script src="js/camera.js?v=graded-test-1"></script>
-<script src="js/app.js?v=graded-test-1"></script>
+<script src="js/grading.js?v=base44-rework-1"></script>
+<script src="js/app.js?v=base44-rework-1"></script>
 </body>
 </html>
