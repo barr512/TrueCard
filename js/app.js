@@ -405,36 +405,48 @@ function renderCards(cards) {
       cardElement.className = "collection-card compact-card";
 
       const frontImageHTML = card.frontImage
-        ? `<img class="card-image" src="${card.frontImage}" alt="Front card image">`
-        : "";
+        ? `<img class="collection-thumbnail" src="${card.frontImage}" alt="Front of ${escapeHTML(card.player || "card")}">`
+        : `<div class="collection-thumbnail placeholder">No image</div>`;
+
+      const gradeLabel = card.cardType === "graded"
+        ? [card.gradingCompany || "Graded", card.professionalGrade]
+            .filter(Boolean)
+            .join(" ")
+        : card.suggestedGrade
+          ? `Estimated ${card.suggestedGrade}`
+          : "Raw card";
 
       cardElement.innerHTML = `
-        ${frontImageHTML}
+        <div class="compact-card-main">
+          ${frontImageHTML}
 
-        <h3>${escapeHTML(card.player || "Unknown Player")}</h3>
+          <div class="compact-card-copy">
+            <div class="compact-card-heading">
+              <div>
+                <p class="compact-card-kicker">
+                  ${escapeHTML([card.year, card.manufacturer].filter(Boolean).join(" • ") || "Card")}
+                </p>
+                <h3>${escapeHTML(card.player || "Unknown Player")}</h3>
+              </div>
+              <strong class="compact-card-value">
+                ${formatCurrency(card.currentValue || 0)}
+              </strong>
+            </div>
 
-        <p>${escapeHTML(card.year || "Unknown Year")}
-        ${escapeHTML(card.manufacturer || "")}
-        ${escapeHTML(card.setName || "")}</p>
+            <p class="compact-card-set">
+              ${escapeHTML(card.releaseName || card.setName || "Unknown set")}
+              ${card.cardNumber ? ` • #${escapeHTML(card.cardNumber)}` : ""}
+            </p>
 
-        <p>Card #: ${escapeHTML(card.cardNumber || "N/A")}</p>
+            <div class="compact-card-badges">
+              <span>${escapeHTML(gradeLabel)}</span>
+              ${card.sport ? `<span>${escapeHTML(card.sport)}</span>` : ""}
+              ${card.favorite ? "<span>Favorite</span>" : ""}
+            </div>
+          </div>
+        </div>
 
-${
-  card.cardType === "graded"
-    ? `
-      <p>
-        <strong>
-          ${escapeHTML(card.gradingCompany || "Graded")}
-          ${escapeHTML(card.professionalGrade || "")}
-        </strong>
-      </p>
-    `
-    : `<p><strong>Raw Card</strong></p>`
-}
-
-<p>Value: ${formatCurrency(card.currentValue || 0)}</p>
-
-        <div class="card-actions">
+        <div class="card-actions compact-actions">
           <button data-view-id="${card.id}">View</button>
           <button data-comps-id="${card.id}">Copy Search</button>
           <button class="delete-btn" data-delete-id="${card.id}">Delete</button>
