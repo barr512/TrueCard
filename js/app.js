@@ -36,6 +36,8 @@ const restoreBackupInput =
   document.getElementById("restoreBackupInput");
 const backupStatus =
   document.getElementById("backupStatus");
+const downloadCsvTemplateButton =
+  document.getElementById("downloadCsvTemplateButton");
 const csvImportInput =
   document.getElementById("csvImportInput");
 const csvImportStatus =
@@ -141,12 +143,71 @@ setupCardTypeControls();
   }
 });
 function setupCsvImport() {
+  if (downloadCsvTemplateButton) {
+    downloadCsvTemplateButton.addEventListener(
+      "click",
+      downloadCsvTemplate
+    );
+  }
+
   if (!csvImportInput) return;
 
   csvImportInput.addEventListener(
     "change",
     importCardsFromCsv
   );
+}
+
+function downloadCsvTemplate() {
+  const headers = [
+    "Player",
+    "Year",
+    "Manufacturer",
+    "Release",
+    "Set",
+    "Card Number",
+    "Sport",
+    "Current Value",
+    "Value Source",
+    "Card Type",
+    "Grading Company",
+    "Professional Grade",
+    "Certification Number",
+    "Purchase Price",
+    "Purchase Date",
+    "Desired Sale Price",
+    "Sale Platform",
+    "Favorite",
+    "Wishlist",
+    "Sold",
+    "Notes"
+  ];
+
+  const blob = new Blob(
+    [headers.map(csvEscape).join(",") + "\n"],
+    { type: "text/csv;charset=utf-8" }
+  );
+
+  const downloadUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = downloadUrl;
+  link.download = "TrueCard-import-template.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(downloadUrl);
+  }, 1000);
+}
+
+function csvEscape(value) {
+  const text = String(value ?? "");
+
+  return /[",\n\r]/.test(text)
+    ? `"${text.replaceAll('"', '""')}"`
+    : text;
 }
 
 async function importCardsFromCsv(event) {
