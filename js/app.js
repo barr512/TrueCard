@@ -273,8 +273,32 @@ function setupRecognitionListener() {
 
     document.getElementById("cardNumber").value = card.number || "";
 
+    const recognizedCardDetails =
+      document.getElementById("recognizedCardDetails");
+
+    if (recognizedCardDetails) {
+      const cacheHit = Boolean(result.truecardCache?.hit);
+      recognizedCardDetails.hidden = false;
+      recognizedCardDetails.innerHTML = `
+        <h3>${cacheHit ? "Saved identification reused" : "Card identified"}</h3>
+        <div class="detail-row">
+          <span class="label">Source</span>
+          <span class="value">
+            ${cacheHit ? "Local recognition cache" : "CardSight"}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Confidence</span>
+          <span class="value">
+            ${escapeHTML(bestMatch.confidence || "Not provided")}
+          </span>
+        </div>
+      `;
+    }
+
     console.log("Card identified:", {
       confidence: bestMatch.confidence,
+      cacheHit: Boolean(result.truecardCache?.hit),
       card
     });
     
