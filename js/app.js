@@ -22,6 +22,7 @@ const detailPlayer = document.getElementById("detailPlayer");
 const detailSubtitle = document.getElementById("detailSubtitle");
 const detailYear = document.getElementById("detailYear");
 const detailSet = document.getElementById("detailSet");
+const detailRelease = document.getElementById("detailRelease");
 const detailManufacturer = document.getElementById("detailManufacturer");
 const detailNumber = document.getElementById("detailNumber");
 const detailSport = document.getElementById("detailSport");
@@ -32,6 +33,11 @@ const detailCardType = document.getElementById("detailCardType");
 const detailGradingCompany = document.getElementById("detailGradingCompany");
 const detailProfessionalGrade = document.getElementById("detailProfessionalGrade");
 const detailCertificationNumber = document.getElementById("detailCertificationNumber");
+const detailSuggestedGrade = document.getElementById("detailSuggestedGrade");
+const detailPurchasePrice = document.getElementById("detailPurchasePrice");
+const detailDesiredSalePrice = document.getElementById("detailDesiredSalePrice");
+const detailValueSource = document.getElementById("detailValueSource");
+const detailGradeExplanation = document.getElementById("detailGradeExplanation");
 
 const detailGradingCompanyRow =
   document.getElementById("detailGradingCompanyRow");
@@ -485,6 +491,7 @@ function openDetail(card) {
 
   detailYear.textContent = card.year || "—";
   detailSet.textContent = card.setName || "—";
+  detailRelease.textContent = card.releaseName || "—";
   detailManufacturer.textContent = card.manufacturer || "—";
   detailNumber.textContent = card.cardNumber || "—";
   detailSport.textContent = card.sport || "—";
@@ -507,6 +514,27 @@ detailProfessionalGrade.textContent =
 
 detailCertificationNumber.textContent =
   card.certificationNumber || "—";
+
+detailSuggestedGrade.textContent =
+  card.suggestedGrade || "—";
+
+detailPurchasePrice.textContent =
+  card.purchasePrice == null
+    ? "—"
+    : formatCurrency(card.purchasePrice);
+
+detailDesiredSalePrice.textContent =
+  card.desiredSalePrice == null
+    ? "—"
+    : formatCurrency(card.desiredSalePrice);
+
+detailValueSource.textContent =
+  card.valueSource || "—";
+
+detailGradeExplanation.textContent =
+  card.gradeExplanation?.trim() ||
+  "No grade estimate yet.";
+
   detailStatus.textContent = card.sold
     ? "Sold"
     : card.wishlist
