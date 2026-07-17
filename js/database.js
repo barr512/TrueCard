@@ -267,3 +267,34 @@ function validateBackupSnapshot(snapshot) {
     }
   });
 }
+
+
+async function importCardsLocally(cards) {
+  if (!Array.isArray(cards)) {
+    throw new Error("Imported cards must be provided as a list.");
+  }
+
+  if (!cards.length) {
+    return 0;
+  }
+
+  const db = await openDatabase();
+  const transaction = db.transaction(CARD_STORE, "readwrite");
+  const store = transaction.objectStore(CARD_STORE);
+
+  cards.forEach(card => {
+    store.put(card);
+  });
+
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = () => resolve(cards.length);
+    transaction.onerror = () => reject(
+      transaction.error ||
+      new Error("The imported cards could not be saved.")
+    );
+    transaction.onabort = () => reject(
+      transaction.error ||
+      new Error("The card import was cancelled.")
+    );
+  });
+}
