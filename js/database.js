@@ -148,3 +148,122 @@ function clearRecognitionCache() {
     store => store.clear()
   );
 }
+
+
+async function createBackupSnapshot() {
+  const [cards, cardSets, recognitions] = await Promise.all([
+    getAllCards(),
+    getAllCardSets(),
+    getAllRecognitions()
+  ]);
+
+  return {
+    format: "TrueCardBackup",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    data: {
+      cards,
+      cardSets,
+      recognitions
+    }
+  };
+}
+
+async function restoreBackupSnapshot(snapshot) {
+  validateBackupSnapshot(snapshot);
+
+  const db = await openDatabase();
+  const transaction = db.transaction(
+    [CARD_STORE, SET_STORE, RECOGNITION_STORE],
+    "readwrite"
+  );
+
+  const cardStore = transaction.objectStore(CARD_STORE);
+  const setStore = transaction.objectStore(SET_STORE);
+  const recognitionStore =
+    transaction.objectStore(RECOGNITION_STORE);
+
+  snapshot.data.cards.forEach(card => {
+    cardStore.put(card);
+  });
+
+  snapshot.data.cardSets.forEach(cardSet => {
+    setStore.put(cardSet);
+  });
+
+  snapshot.data.recognitions.forEach(recognition => {
+    recognitionStore.put(recognition);
+  });
+
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = () => resolve({
+      cards: snapshot.data.cards.length,
+      cardSets: snapshot.data.cardSets.length,
+      recognitions: snapshot.data.recognitions.length
+    });
+
+    transaction.onerror = () => reject(
+      transaction.error ||
+      new Error("The backup could not be restored.")
+    );
+
+    transaction.onabort = () => reject(
+      transaction.error ||
+      new Error("The backup restore was cancelled.")
+    );
+  });
+}
+
+function validateBackupSnapshot(snapshot) {
+  if (
+    !snapshot ||
+    snapshot.format !== "TrueCardBackup" ||
+    snapshot.version !== 1 ||
+    !snapshot.data
+  ) {
+    throw new Error(
+      "This file is not a supported TrueCard backup."
+    );
+  }
+
+  const collections = [
+    ["cards", snapshot.data.cards],
+    ["card sets", snapshot.data.cardSets],
+    ["recognition cache", snapshot.data.recognitions]
+  ];
+
+  collections.forEach(([label, value]) => {
+    if (!Array.isArray(value)) {
+      throw new Error(
+        `The backup has an invalid ${label} section.`
+      );
+    }
+  });
+
+  snapshot.data.cards.forEach(card => {
+    if (!card || typeof card.id !== "string") {
+      throw new Error(
+        "The backup contains a card without a valid ID."
+      );
+    }
+  });
+
+  snapshot.data.cardSets.forEach(cardSet => {
+    if (!cardSet || typeof cardSet.id !== "string") {
+      throw new Error(
+        "The backup contains a set without a valid ID."
+      );
+    }
+  });
+
+  snapshot.data.recognitions.forEach(recognition => {
+    if (
+      !recognition ||
+      typeof recognition.fingerprint !== "string"
+    ) {
+      throw new Error(
+        "The backup contains an invalid recognition record."
+      );
+    }
+  });
+}
