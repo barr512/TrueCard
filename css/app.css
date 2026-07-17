@@ -682,3 +682,72 @@ textarea {
     margin-top: 5px;
   }
 }
+
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-heading h2 {
+  margin: 2px 0 0;
+}
+
+.set-form {
+  margin-top: 18px;
+}
+
+.set-list {
+  display: grid;
+  gap: 12px;
+}
+
+.set-card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.set-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.set-card-heading h3 {
+  margin: 2px 0 4px;
+  font-size: 20px;
+}
+
+.set-card-heading p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.set-card-heading > strong {
+  flex: 0 0 auto;
+  color: var(--primary-dark);
+  font-size: 14px;
+}
+
+.set-notes {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--soft);
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.set-delete {
+  width: auto;
+  margin-top: 12px;
+  padding: 9px 12px;
+  font-size: 13px;
+}
