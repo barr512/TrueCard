@@ -30,6 +30,13 @@ const setGeneralGrade = document.getElementById("setGeneralGrade");
 const setCardCount = document.getElementById("setCardCount");
 const setNotes = document.getElementById("setNotes");
 
+const exportBackupButton =
+  document.getElementById("exportBackupButton");
+const restoreBackupInput =
+  document.getElementById("restoreBackupInput");
+const backupStatus =
+  document.getElementById("backupStatus");
+
 const screenTitle = document.getElementById("screenTitle");
 
 const detailPlayer = document.getElementById("detailPlayer");
@@ -108,6 +115,7 @@ setupRecognitionListener();
 setupCardTypeControls();
   setupSetTracking();
   setupGrading();
+  setupBackupTools();
 
   if (addManualButton) {
     addManualButton.addEventListener("click", () => {
@@ -127,6 +135,117 @@ setupCardTypeControls();
     alert(`Could not load saved cards:\n${error.message}`);
   }
 });
+function setupBackupTools() {
+  if (exportBackupButton) {
+    exportBackupButton.addEventListener("click", exportBackup);
+  }
+
+  if (restoreBackupInput) {
+    restoreBackupInput.addEventListener(
+      "change",
+      restoreBackupFromFile
+    );
+  }
+}
+
+async function exportBackup() {
+  exportBackupButton.disabled = true;
+  showBackupStatus("Preparing complete backup…");
+
+  try {
+    const snapshot = await createBackupSnapshot();
+    const json = JSON.stringify(snapshot);
+    const blob = new Blob([json], {
+      type: "application/json"
+    });
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+
+    link.href = downloadUrl;
+    link.download = `TrueCard-backup-${date}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(downloadUrl);
+    }, 1000);
+
+    showBackupStatus(
+      `Backup created: ${snapshot.data.cards.length} cards, ` +
+      `${snapshot.data.cardSets.length} sets, and ` +
+      `${snapshot.data.recognitions.length} saved identifications.`
+    );
+  } catch (error) {
+    console.error("Backup export failed:", error);
+    showBackupStatus(error.message, true);
+  } finally {
+    exportBackupButton.disabled = false;
+  }
+}
+
+async function restoreBackupFromFile(event) {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  showBackupStatus("Checking backup file…");
+
+  try {
+    const text = await file.text();
+    const snapshot = JSON.parse(text);
+
+    validateBackupSnapshot(snapshot);
+
+    const confirmed = confirm(
+      `Restore this TrueCard backup?\n\n` +
+      `${snapshot.data.cards.length} cards\n` +
+      `${snapshot.data.cardSets.length} sets\n` +
+      `${snapshot.data.recognitions.length} saved identifications\n\n` +
+      "Existing records will not be deleted."
+    );
+
+    if (!confirmed) {
+      showBackupStatus("Restore cancelled.");
+      return;
+    }
+
+    showBackupStatus("Restoring backup…");
+    const restored = await restoreBackupSnapshot(snapshot);
+
+    await Promise.all([
+      loadCards(),
+      loadCardSets()
+    ]);
+
+    showBackupStatus(
+      `Restore complete: ${restored.cards} cards, ` +
+      `${restored.cardSets} sets, and ` +
+      `${restored.recognitions} saved identifications merged.`
+    );
+  } catch (error) {
+    console.error("Backup restore failed:", error);
+
+    const message =
+      error instanceof SyntaxError
+        ? "That file does not contain valid TrueCard backup data."
+        : error.message;
+
+    showBackupStatus(message, true);
+  } finally {
+    restoreBackupInput.value = "";
+  }
+}
+
+function showBackupStatus(message, isError = false) {
+  if (!backupStatus) return;
+
+  backupStatus.hidden = false;
+  backupStatus.textContent = message;
+  backupStatus.classList.toggle("error", isError);
+}
+
 function setupGrading() {
   if (!gradeCardButton) return;
 
