@@ -619,6 +619,7 @@ editNotes.value = card.notes || "";
   card.player = editPlayer.value.trim();
   card.year = editYear.value.trim();
   card.setName = editSetName.value.trim();
+  card.releaseName = editReleaseName.value.trim();
   card.manufacturer = editManufacturer.value.trim();
   card.cardNumber = editCardNumber.value.trim();
   card.sport = editSport.value.trim();
