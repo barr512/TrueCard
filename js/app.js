@@ -172,10 +172,14 @@ cardForm.addEventListener("submit", async event => {
     player: document.getElementById("player").value.trim(),
     year: document.getElementById("year").value.trim(),
     setName: document.getElementById("setName").value.trim(),
+    releaseName: document.getElementById("releaseName").value.trim(),
     manufacturer: document.getElementById("manufacturer").value.trim(),
     cardNumber: document.getElementById("cardNumber").value.trim(),
-    sport: document.getElementById("sport").value.trim(),
-currentValue: Number(document.getElementById("currentValue").value || 0),
+    sport: document.getElementById("sport").value,
+    currentValue: Number(document.getElementById("currentValue").value || 0),
+    valueSource: document.getElementById("valueSource").value.trim(),
+    suggestedGrade: document.getElementById("suggestedGrade").value.trim(),
+    gradeExplanation: document.getElementById("gradeExplanation").value.trim(),
 
 cardType: cardType.value || "raw",
 
@@ -194,8 +198,14 @@ certificationNumber:
     ? certificationNumber.value.trim()
     : "",
 
-purchasePrice: null,
-    purchaseDate: null,
+purchasePrice: document.getElementById("purchasePrice").value
+      ? Number(document.getElementById("purchasePrice").value)
+      : null,
+    purchaseDate: document.getElementById("purchaseDate").value || null,
+    desiredSalePrice: document.getElementById("desiredSalePrice").value
+      ? Number(document.getElementById("desiredSalePrice").value)
+      : null,
+    salePlatform: document.getElementById("salePlatform").value || "eBay",
     salePrice: null,
     saleDate: null,
     fees: null,
@@ -203,7 +213,7 @@ purchasePrice: null,
     gradingCost: null,
 
     storageLocation: "",
-    notes: "",
+    notes: document.getElementById("notes").value.trim(),
     favorite: false,
     sold: false,
     wishlist: false,
@@ -265,13 +275,19 @@ function setupRecognitionListener() {
     document.getElementById("player").value = card.name || "";
     document.getElementById("year").value = card.year || "";
     document.getElementById("manufacturer").value = card.manufacturer || "";
-
-    document.getElementById("setName").value =
-      card.releaseName && card.setName && card.setName !== "Base Set"
-        ? `${card.releaseName} - ${card.setName}`
-        : card.releaseName || card.setName || "";
-
+    document.getElementById("releaseName").value = card.releaseName || "";
+    document.getElementById("setName").value = card.setName || "";
     document.getElementById("cardNumber").value = card.number || "";
+
+    const recognizedSport = card.sport || "";
+    const sportSelect = document.getElementById("sport");
+
+    if (
+      recognizedSport &&
+      [...sportSelect.options].some(option => option.value === recognizedSport)
+    ) {
+      sportSelect.value = recognizedSport;
+    }
 
     const recognizedCardDetails =
       document.getElementById("recognizedCardDetails");
