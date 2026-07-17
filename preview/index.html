@@ -15,17 +15,23 @@
   <div class="app-shell">
 
     <header class="top-bar">
-      <div>
-        <p class="eyebrow">TrueCard</p>
-        <h1 id="screenTitle">Home</h1>
-      </div>
+      <button class="brand-button" type="button" data-nav="collectionScreen">
+        <span class="brand-mark">TC</span>
+        <span class="brand-name">TrueCard</span>
+      </button>
+
+      <button class="header-settings" type="button" data-nav="settingsScreen">
+        Settings
+      </button>
+
+      <h1 id="screenTitle" class="sr-only">Collection</h1>
     </header>
 
     <main class="screen-area">
 
       <!-- HOME -->
 
-      <section id="homeScreen" class="screen active">
+      <section id="homeScreen" class="screen">
 
         <div class="hero-card">
           <p class="hero-label">Your collection, intelligently managed.</p>
@@ -52,19 +58,7 @@
 </div>
         </div>
 
-        <div class="stats-grid">
 
-          <div class="stat-card">
-            <span>Total Cards</span>
-            <strong id="totalCards">0</strong>
-          </div>
-
-          <div class="stat-card">
-            <span>Collection Value</span>
-            <strong id="totalValue">$0.00</strong>
-          </div>
-
-        </div>
 
       </section>
 
@@ -276,11 +270,30 @@
       </section>
             <!-- COLLECTION -->
 
-      <section id="collectionScreen" class="screen">
+      <section id="collectionScreen" class="screen active">
 
         <div class="panel">
 
-          <h2>Collection</h2>
+          <div class="collection-heading">
+            <div>
+              <p class="detail-label">Your cards</p>
+              <h2>Collection</h2>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+
+          <div class="stat-card">
+            <span>Total Cards</span>
+            <strong id="totalCards">0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Collection Value</span>
+            <strong id="totalValue">$0.00</strong>
+          </div>
+
+        </div>
 
          <div class="collection-controls">
 
@@ -848,24 +861,19 @@
 
     <nav class="bottom-nav">
 
-      <button data-nav="homeScreen" class="active">
-        Home
+      <button data-nav="collectionScreen" class="active">
+        <span class="nav-icon">▦</span>
+        <span>Collection</span>
       </button>
 
       <button data-nav="scanScreen">
-        Scan
-      </button>
-
-      <button data-nav="collectionScreen">
-        Collection
+        <span class="nav-icon">＋</span>
+        <span>Add Card</span>
       </button>
 
       <button data-nav="setsScreen">
-        Sets
-      </button>
-
-      <button data-nav="settingsScreen">
-        Settings
+        <span class="nav-icon">▱</span>
+        <span>Sets</span>
       </button>
 
     </nav>
