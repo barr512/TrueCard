@@ -647,6 +647,78 @@
         </div>
 
       </section>
+      <!-- SETS -->
+
+      <section id="setsScreen" class="screen">
+
+        <div class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="detail-label">Set tracking</p>
+              <h2>My Sets</h2>
+            </div>
+          </div>
+
+          <p class="helper-text">
+            Track complete or partial sets without scanning every card.
+          </p>
+
+          <form id="cardSetForm" class="set-form">
+            <div class="form-grid">
+              <label class="field-label">
+                Year *
+                <input id="setYear" required placeholder="1989" />
+              </label>
+
+              <label class="field-label">
+                Manufacturer *
+                <input id="setManufacturer" required placeholder="Upper Deck" />
+              </label>
+
+              <label class="field-label">
+                Set name
+                <input id="trackedSetName" placeholder="Upper Deck Baseball" />
+              </label>
+
+              <label class="field-label">
+                Sport
+                <select id="setSport">
+                  <option value="Baseball">Baseball</option>
+                  <option value="Football">Football</option>
+                  <option value="Basketball">Basketball</option>
+                  <option value="Hockey">Hockey</option>
+                  <option value="Soccer">Soccer</option>
+                  <option value="Pokemon TCG">Pokémon TCG</option>
+                  <option value="Magic: The Gathering">Magic: The Gathering</option>
+                  <option value="One Piece TCG">One Piece TCG</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label class="field-label">
+                General grade
+                <input id="setGeneralGrade" placeholder="NM–MT or 7–8" />
+              </label>
+
+              <label class="field-label">
+                Approximate card count
+                <input id="setCardCount" type="number" min="0" placeholder="792" />
+              </label>
+            </div>
+
+            <label class="field-label">
+              Notes
+              <textarea id="setNotes" rows="3" placeholder="Complete, partial, missing cards, bulk storage, or other notes"></textarea>
+            </label>
+
+            <button type="submit">Add Set</button>
+          </form>
+        </div>
+
+        <div id="cardSetList" class="set-list"></div>
+
+      </section>
+
             <!-- PORTFOLIO -->
 
       <section id="portfolioScreen" class="screen">
@@ -709,8 +781,8 @@
         Collection
       </button>
 
-      <button data-nav="portfolioScreen">
-        Portfolio
+      <button data-nav="setsScreen">
+        Sets
       </button>
 
       <button data-nav="settingsScreen">
