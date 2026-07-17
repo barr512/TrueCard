@@ -56,10 +56,18 @@ const editCardPanel = document.getElementById("editCardPanel");
 const editPlayer = document.getElementById("editPlayer");
 const editYear = document.getElementById("editYear");
 const editSetName = document.getElementById("editSetName");
+const editReleaseName = document.getElementById("editReleaseName");
 const editManufacturer = document.getElementById("editManufacturer");
 const editCardNumber = document.getElementById("editCardNumber");
 const editSport = document.getElementById("editSport");
 const editCurrentValue = document.getElementById("editCurrentValue");
+const editValueSource = document.getElementById("editValueSource");
+const editPurchasePrice = document.getElementById("editPurchasePrice");
+const editPurchaseDate = document.getElementById("editPurchaseDate");
+const editDesiredSalePrice = document.getElementById("editDesiredSalePrice");
+const editSalePlatform = document.getElementById("editSalePlatform");
+const editSuggestedGrade = document.getElementById("editSuggestedGrade");
+const editGradeExplanation = document.getElementById("editGradeExplanation");
 const editCardType = document.getElementById("editCardType");
 const editGradedCardFields =
   document.getElementById("editGradedCardFields");
@@ -576,10 +584,18 @@ detailGradeExplanation.textContent =
   editPlayer.value = card.player || "";
   editYear.value = card.year || "";
   editSetName.value = card.setName || "";
+  editReleaseName.value = card.releaseName || "";
   editManufacturer.value = card.manufacturer || "";
   editCardNumber.value = card.cardNumber || "";
   editSport.value = card.sport || "";
-  editCurrentValue.value = card.currentValue || "";
+  editCurrentValue.value = card.currentValue ?? "";
+  editValueSource.value = card.valueSource || "";
+  editPurchasePrice.value = card.purchasePrice ?? "";
+  editPurchaseDate.value = card.purchaseDate || "";
+  editDesiredSalePrice.value = card.desiredSalePrice ?? "";
+  editSalePlatform.value = card.salePlatform || "eBay";
+  editSuggestedGrade.value = card.suggestedGrade || "";
+  editGradeExplanation.value = card.gradeExplanation || "";
 
 editCardType.value =
   card.cardType === "graded"
@@ -607,6 +623,17 @@ editNotes.value = card.notes || "";
   card.cardNumber = editCardNumber.value.trim();
   card.sport = editSport.value.trim();
  card.currentValue = Number(editCurrentValue.value || 0);
+card.valueSource = editValueSource.value.trim();
+card.purchasePrice = editPurchasePrice.value
+  ? Number(editPurchasePrice.value)
+  : null;
+card.purchaseDate = editPurchaseDate.value || null;
+card.desiredSalePrice = editDesiredSalePrice.value
+  ? Number(editDesiredSalePrice.value)
+  : null;
+card.salePlatform = editSalePlatform.value || "eBay";
+card.suggestedGrade = editSuggestedGrade.value.trim();
+card.gradeExplanation = editGradeExplanation.value.trim();
 
 card.cardType =
   editCardType.value === "graded"
