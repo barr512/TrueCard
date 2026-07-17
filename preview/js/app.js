@@ -1065,53 +1065,37 @@ function renderCards(cards) {
       const cardElement = document.createElement("article");
       cardElement.className = "collection-card compact-card";
 
-      const frontImageHTML = card.frontImage
-        ? `<img class="collection-thumbnail" src="${card.frontImage}" alt="Front of ${escapeHTML(card.player || "card")}">`
-        : `<div class="collection-thumbnail placeholder">No image</div>`;
+      cardElement.className = "collection-card collection-tile";
 
-      const gradeLabel = card.cardType === "graded"
-        ? [card.gradingCompany || "Graded", card.professionalGrade]
-            .filter(Boolean)
-            .join(" ")
-        : card.suggestedGrade
-          ? `Estimated ${card.suggestedGrade}`
-          : "Raw card";
+      const frontImageHTML = card.frontImage
+        ? `<img class="tile-image" src="${card.frontImage}" alt="Front of ${escapeHTML(card.player || "card")}">`
+        : `
+          <div class="tile-image tile-placeholder">
+            ${escapeHTML(card.player || "No image")}
+          </div>
+        `;
 
       cardElement.innerHTML = `
-        <div class="compact-card-main">
-          ${frontImageHTML}
+        <button
+          type="button"
+          class="tile-button"
+          data-view-id="${card.id}"
+        >
+          <div class="tile-image-frame">
+            ${frontImageHTML}
+          </div>
 
-          <div class="compact-card-copy">
-            <div class="compact-card-heading">
-              <div>
-                <p class="compact-card-kicker">
-                  ${escapeHTML([card.year, card.manufacturer].filter(Boolean).join(" • ") || "Card")}
-                </p>
-                <h3>${escapeHTML(card.player || "Unknown Player")}</h3>
-              </div>
-              <strong class="compact-card-value">
-                ${formatCurrency(card.currentValue || 0)}
-              </strong>
-            </div>
-
-            <p class="compact-card-set">
-              ${escapeHTML(card.releaseName || card.setName || "Unknown set")}
-              ${card.cardNumber ? ` • #${escapeHTML(card.cardNumber)}` : ""}
+          <div class="tile-copy">
+            <p class="tile-player">
+              ${escapeHTML(card.player || "Unknown Player")}
             </p>
 
-            <div class="compact-card-badges">
-              <span>${escapeHTML(gradeLabel)}</span>
-              ${card.sport ? `<span>${escapeHTML(card.sport)}</span>` : ""}
-              ${card.favorite ? "<span>Favorite</span>" : ""}
+            <div class="tile-meta">
+              <span>${escapeHTML(card.year || "—")}</span>
+              <strong>${formatCurrency(card.currentValue || 0)}</strong>
             </div>
           </div>
-        </div>
-
-        <div class="card-actions compact-actions">
-          <button data-view-id="${card.id}">View</button>
-          <button data-comps-id="${card.id}">Copy Search</button>
-          <button class="delete-btn" data-delete-id="${card.id}">Delete</button>
-        </div>
+        </button>
       `;
 
       cardList.appendChild(cardElement);
