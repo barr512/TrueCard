@@ -36,6 +36,10 @@ const restoreBackupInput =
   document.getElementById("restoreBackupInput");
 const backupStatus =
   document.getElementById("backupStatus");
+const csvImportInput =
+  document.getElementById("csvImportInput");
+const csvImportStatus =
+  document.getElementById("csvImportStatus");
 
 const screenTitle = document.getElementById("screenTitle");
 
@@ -116,6 +120,7 @@ setupCardTypeControls();
   setupSetTracking();
   setupGrading();
   setupBackupTools();
+  setupCsvImport();
 
   if (addManualButton) {
     addManualButton.addEventListener("click", () => {
@@ -135,6 +140,391 @@ setupCardTypeControls();
     alert(`Could not load saved cards:\n${error.message}`);
   }
 });
+function setupCsvImport() {
+  if (!csvImportInput) return;
+
+  csvImportInput.addEventListener(
+    "change",
+    importCardsFromCsv
+  );
+}
+
+async function importCardsFromCsv(event) {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  showCsvImportStatus("Reading CSV file…");
+
+  try {
+    const text = await file.text();
+    const rows = parseCsv(text);
+
+    if (rows.length < 2) {
+      throw new Error(
+        "The CSV must contain a header row and at least one card row."
+      );
+    }
+
+    const headers = rows[0].map(normalizeCsvHeader);
+    const fileFingerprint = await fingerprintText(text);
+    const existingCards = await getAllCards();
+    const importedKeys = new Set(
+      existingCards
+        .map(card => card.importKey)
+        .filter(Boolean)
+    );
+
+    const cards = [];
+    let skippedExisting = 0;
+    let skippedBlank = 0;
+
+    rows.slice(1).forEach((row, index) => {
+      const importKey =
+        `csv:${fileFingerprint}:${index + 2}`;
+
+      if (importedKeys.has(importKey)) {
+        skippedExisting += 1;
+        return;
+      }
+
+      const values = csvRowToObject(headers, row);
+      const card = csvObjectToCard(values, importKey);
+
+      if (!card) {
+        skippedBlank += 1;
+        return;
+      }
+
+      cards.push(card);
+    });
+
+    if (!cards.length) {
+      showCsvImportStatus(
+        skippedExisting
+          ? "Every card row in this file was already imported."
+          : "No usable card rows were found.",
+        !skippedExisting
+      );
+      return;
+    }
+
+    const confirmed = confirm(
+      `Import ${cards.length} cards from ${file.name}?\n\n` +
+      `${skippedExisting} previously imported rows will be skipped.\n` +
+      `${skippedBlank} blank rows will be skipped.\n\n` +
+      "No CardSight or AI calls will be made."
+    );
+
+    if (!confirmed) {
+      showCsvImportStatus("CSV import cancelled.");
+      return;
+    }
+
+    showCsvImportStatus("Saving imported cards locally…");
+    await importCardsLocally(cards);
+    await loadCards();
+
+    showCsvImportStatus(
+      `Imported ${cards.length} cards. ` +
+      `${skippedExisting} previously imported rows and ` +
+      `${skippedBlank} blank rows were skipped.`
+    );
+  } catch (error) {
+    console.error("CSV import failed:", error);
+    showCsvImportStatus(error.message, true);
+  } finally {
+    csvImportInput.value = "";
+  }
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let quoted = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    const next = text[index + 1];
+
+    if (character === '"') {
+      if (quoted && next === '"') {
+        field += '"';
+        index += 1;
+      } else {
+        quoted = !quoted;
+      }
+
+      continue;
+    }
+
+    if (character === "," && !quoted) {
+      row.push(field);
+      field = "";
+      continue;
+    }
+
+    if (
+      (character === "\n" || character === "\r") &&
+      !quoted
+    ) {
+      if (character === "\r" && next === "\n") {
+        index += 1;
+      }
+
+      row.push(field);
+
+      if (row.some(value => String(value).trim())) {
+        rows.push(row);
+      }
+
+      row = [];
+      field = "";
+      continue;
+    }
+
+    field += character;
+  }
+
+  row.push(field);
+
+  if (row.some(value => String(value).trim())) {
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function normalizeCsvHeader(header) {
+  return String(header || "")
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function csvRowToObject(headers, row) {
+  return headers.reduce((result, header, index) => {
+    if (header) {
+      result[header] = String(row[index] ?? "").trim();
+    }
+
+    return result;
+  }, {});
+}
+
+function csvObjectToCard(values, importKey) {
+  const player = csvValue(values, [
+    "player",
+    "playername",
+    "name",
+    "subject"
+  ]);
+
+  const year = csvValue(values, [
+    "year",
+    "cardyear"
+  ]);
+
+  const setName = csvValue(values, [
+    "set",
+    "setname",
+    "subset"
+  ]);
+
+  const manufacturer = csvValue(values, [
+    "manufacturer",
+    "brand",
+    "company"
+  ]);
+
+  const cardNumber = csvValue(values, [
+    "cardnumber",
+    "cardno",
+    "number",
+    "no"
+  ]);
+
+  if (
+    !player &&
+    !year &&
+    !setName &&
+    !manufacturer &&
+    !cardNumber
+  ) {
+    return null;
+  }
+
+  const gradedText = csvValue(values, [
+    "cardtype",
+    "graded",
+    "isgraded"
+  ]).toLowerCase();
+
+  const isGraded = [
+    "graded",
+    "yes",
+    "true",
+    "1",
+    "slab"
+  ].includes(gradedText);
+
+  const now = new Date().toISOString();
+
+  return {
+    id: crypto.randomUUID(),
+    importKey,
+    importSource: "csv",
+    player: player || "Unknown Player",
+    year,
+    setName,
+    releaseName: csvValue(values, [
+      "release",
+      "releasename",
+      "product",
+      "productname"
+    ]),
+    manufacturer,
+    cardNumber,
+    sport: csvValue(values, ["sport"]) || "Other",
+    currentValue: csvNumber(
+      csvValue(values, [
+        "currentvalue",
+        "cardvalue",
+        "value",
+        "marketvalue"
+      ])
+    ) || 0,
+    valueSource: csvValue(values, [
+      "valuesource",
+      "source"
+    ]),
+    cardType: isGraded ? "graded" : "raw",
+    gradingCompany: csvValue(values, [
+      "gradingcompany",
+      "grader"
+    ]),
+    professionalGrade: csvValue(values, [
+      "professionalgrade",
+      "gradevalue",
+      "grade"
+    ]),
+    certificationNumber: csvValue(values, [
+      "certificationnumber",
+      "certnumber",
+      "cert"
+    ]),
+    suggestedGrade: csvValue(values, [
+      "suggestedgrade",
+      "estimatedgrade"
+    ]),
+    gradeExplanation: csvValue(values, [
+      "gradeexplanation",
+      "gradingnotes"
+    ]),
+    purchasePrice: csvNullableNumber(
+      csvValue(values, [
+        "purchaseprice",
+        "cost",
+        "buyprice"
+      ])
+    ),
+    purchaseDate: csvValue(values, [
+      "purchasedate",
+      "datepurchased"
+    ]) || null,
+    desiredSalePrice: csvNullableNumber(
+      csvValue(values, [
+        "desiredsaleprice",
+        "askingprice",
+        "targetprice"
+      ])
+    ),
+    salePlatform:
+      csvValue(values, ["saleplatform", "platform"]) ||
+      "eBay",
+    notes: csvValue(values, ["notes", "note"]),
+    favorite: csvBoolean(
+      csvValue(values, ["favorite", "favourite"])
+    ),
+    sold: csvBoolean(csvValue(values, ["sold"])),
+    wishlist: csvBoolean(
+      csvValue(values, ["wishlist", "wanted"])
+    ),
+    scanSource: "import",
+    frontImage: "",
+    backImage: "",
+    valueHistory: [],
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function csvValue(values, aliases) {
+  for (const alias of aliases) {
+    const normalized = normalizeCsvHeader(alias);
+
+    if (values[normalized] != null) {
+      return values[normalized];
+    }
+  }
+
+  return "";
+}
+
+function csvNumber(value) {
+  const normalized = String(value || "")
+    .replace(/[$,\s]/g, "")
+    .replace(/^\((.*)\)$/, "-$1");
+
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function csvNullableNumber(value) {
+  return String(value || "").trim()
+    ? csvNumber(value)
+    : null;
+}
+
+function csvBoolean(value) {
+  return ["yes", "true", "1", "y"].includes(
+    String(value || "").trim().toLowerCase()
+  );
+}
+
+async function fingerprintText(text) {
+  if (crypto.subtle) {
+    const bytes = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest(
+      "SHA-256",
+      bytes
+    );
+
+    return Array.from(new Uint8Array(digest))
+      .map(byte => byte.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  let hash = 2166136261;
+
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0).toString(16);
+}
+
+function showCsvImportStatus(message, isError = false) {
+  if (!csvImportStatus) return;
+
+  csvImportStatus.hidden = false;
+  csvImportStatus.textContent = message;
+  csvImportStatus.classList.toggle("error", isError);
+}
+
 function setupBackupTools() {
   if (exportBackupButton) {
     exportBackupButton.addEventListener("click", exportBackup);
