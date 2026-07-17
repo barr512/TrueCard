@@ -5,6 +5,10 @@ const filterBy = document.getElementById("filterBy");
 const filterValue = document.getElementById("filterValue");
 const sortBy = document.getElementById("sortBy");
 const cardType = document.getElementById("cardType");
+const gradeCardButton = document.getElementById("gradeCardButton");
+const gradingStatus = document.getElementById("gradingStatus");
+const suggestedGrade = document.getElementById("suggestedGrade");
+const gradeExplanation = document.getElementById("gradeExplanation");
 const gradedCardFields = document.getElementById("gradedCardFields");
 const gradingCompany = document.getElementById("gradingCompany");
 const professionalGrade = document.getElementById("professionalGrade");
@@ -103,6 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 setupRecognitionListener();
 setupCardTypeControls();
   setupSetTracking();
+  setupGrading();
 
   if (addManualButton) {
     addManualButton.addEventListener("click", () => {
@@ -122,6 +127,77 @@ setupCardTypeControls();
     alert(`Could not load saved cards:\n${error.message}`);
   }
 });
+function setupGrading() {
+  if (!gradeCardButton) return;
+
+  gradeCardButton.addEventListener("click", async () => {
+    const images = getScannedImages();
+
+    if (!images.frontImage) {
+      alert("Capture the front of the card before estimating its grade.");
+      return;
+    }
+
+    gradeCardButton.disabled = true;
+
+    if (gradingStatus) {
+      gradingStatus.hidden = false;
+      gradingStatus.style.display = "flex";
+    }
+
+    try {
+      const result = await requestCardGrade(
+        images.frontImage,
+        images.backImage
+      );
+
+      suggestedGrade.value = result.suggestedGrade;
+      gradeExplanation.value = buildGradeExplanation(result);
+
+      alert(
+        `Estimated grade: ${result.suggestedGrade}\n\n` +
+        "This is a photo-based estimate, not a professional grade."
+      );
+    } catch (error) {
+      console.error("Grade estimate failed:", error);
+      alert(error.message);
+    } finally {
+      gradeCardButton.disabled = false;
+
+      if (gradingStatus) {
+        gradingStatus.style.display = "none";
+        gradingStatus.hidden = true;
+      }
+    }
+  });
+}
+
+function buildGradeExplanation(result) {
+  const factorLabels = {
+    centering: "Centering",
+    corners: "Corners",
+    edges: "Edges",
+    surface: "Surface",
+    back: "Back"
+  };
+
+  const factorText = Object.entries(result.factors || {})
+    .filter(([, value]) => value)
+    .map(([key, value]) => `${factorLabels[key]}: ${value}`)
+    .join("\n");
+
+  return [
+    result.gradeExplanation,
+    factorText,
+    result.confidence
+      ? `Photo-analysis confidence: ${result.confidence}`
+      : "",
+    result.disclaimer
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 function setupCardTypeControls() {
   if (cardType) {
     cardType.addEventListener("change", updateCardTypeFields);
