@@ -804,6 +804,38 @@
             <div id="backupStatus" class="backup-status" hidden></div>
           </div>
 
+          <div class="settings-section">
+            <p class="detail-label">Collection transfer</p>
+            <h3>Import Cards from CSV</h3>
+
+            <p class="helper-text">
+              Import an existing collection list without scanning cards.
+              Common column names such as Player, Year, Set,
+              Manufacturer, Card Number, Sport, Value, and Notes
+              are recognized automatically.
+            </p>
+
+            <label class="restore-button" for="csvImportInput">
+              Choose CSV File
+            </label>
+
+            <input
+              id="csvImportInput"
+              type="file"
+              accept=".csv,text/csv"
+              hidden
+            />
+
+            <p class="settings-note">
+              CSV importing never calls CardSight or AI grading.
+              Importing the same unchanged file again skips rows that
+              were already imported. Duplicate cards listed on
+              separate rows remain separate cards.
+            </p>
+
+            <div id="csvImportStatus" class="backup-status" hidden></div>
+          </div>
+
         </div>
 
       </section>
