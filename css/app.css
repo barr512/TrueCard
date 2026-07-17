@@ -772,3 +772,57 @@ textarea {
   cursor: wait;
   opacity: 0.65;
 }
+
+
+.settings-section {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--soft);
+}
+
+.settings-section h3 {
+  margin: -8px 0 0;
+  font-size: 20px;
+}
+
+.restore-button {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid var(--primary);
+  border-radius: 14px;
+  background: #ffffff;
+  color: var(--primary-dark);
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+}
+
+.settings-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.backup-status {
+  padding: 12px;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.backup-status.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
