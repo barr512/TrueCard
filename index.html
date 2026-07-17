@@ -504,6 +504,11 @@
   </label>
 
   <label>
+    Release
+    <input id="editReleaseName" />
+  </label>
+
+  <label>
     Manufacturer
     <input id="editManufacturer" />
   </label>
@@ -515,12 +520,61 @@
 
   <label>
     Sport
-    <input id="editSport" />
+    <select id="editSport">
+      <option value="Baseball">Baseball</option>
+      <option value="Football">Football</option>
+      <option value="Basketball">Basketball</option>
+      <option value="Hockey">Hockey</option>
+      <option value="Soccer">Soccer</option>
+      <option value="Pokemon TCG">Pokémon TCG</option>
+      <option value="Magic: The Gathering">Magic: The Gathering</option>
+      <option value="One Piece TCG">One Piece TCG</option>
+      <option value="Other">Other</option>
+    </select>
   </label>
 
   <label>
     Current Value
     <input id="editCurrentValue" type="number" step="0.01" />
+  </label>
+
+  <label>
+    Value Source
+    <input id="editValueSource" />
+  </label>
+
+  <label>
+    Purchase Price
+    <input id="editPurchasePrice" type="number" step="0.01" />
+  </label>
+
+  <label>
+    Purchase Date
+    <input id="editPurchaseDate" type="date" />
+  </label>
+
+  <label>
+    Desired Sale Price
+    <input id="editDesiredSalePrice" type="number" step="0.01" />
+  </label>
+
+  <label>
+    Sale Platform
+    <select id="editSalePlatform">
+      <option value="eBay">eBay</option>
+      <option value="WhatNot">WhatNot</option>
+      <option value="Other">Other</option>
+    </select>
+  </label>
+
+  <label>
+    Suggested Grade
+    <input id="editSuggestedGrade" />
+  </label>
+
+  <label>
+    Grade Explanation
+    <textarea id="editGradeExplanation" rows="3"></textarea>
   </label>
 <label>
   Card Type
@@ -566,7 +620,7 @@
 </div>
   <label>
     Notes
-    <input id="editNotes" />
+    <textarea id="editNotes" rows="3"></textarea>
   </label>
 
   <button id="saveEditButton" type="button">
