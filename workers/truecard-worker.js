@@ -10,16 +10,18 @@ async function gradeCard(request,env){if(!env.AI)return jsonResponse({error:"Wor
 
 async function analyzeCardSide(ai,imageFile,side){const imageBytes=Array.from(new Uint8Array(await imageFile.arrayBuffer()));const prompt=`Inspect ONLY the PHYSICAL CONDITION of the ${side} side of this trading card for grading. Ignore the player, team, statistics, text, artwork, background, colors, logos and design completely.
 
-CRITICAL CORNER INSPECTION: Examine ALL FOUR corners independently: TOP-LEFT, TOP-RIGHT, BOTTOM-LEFT, BOTTOM-RIGHT. Look closely at the actual outermost corner for whitening, chipping, rounding, bends, compression, dings, dents and edge/corner wear. A subtle but visible nick or whitening is still wear. Do not say corners are undamaged until each of the four has been examined.
+CRITICAL CORNER INSPECTION: Examine ALL FOUR corners independently: TOP-LEFT, TOP-RIGHT, BOTTOM-LEFT, BOTTOM-RIGHT. Treat each corner as its own inspection target. Mentally zoom into the outermost 1-2 millimeters of each corner and compare the corner edge to the surrounding card edge. Look specifically for whitening, exposed paper, chipping, rounding, flattening, compression, bends, dings, dents, nicks, notches and corner wear. Do not let a clean-looking center or edge cause you to overlook a corner defect. A subtle visible nick or whitening is still wear.
+
+For each corner, explicitly decide one of: no visible wear, minor visible wear, or significant visible wear. If a defect is visible, state its location and type. Do not call a corner clean unless that individual corner was inspected.
 
 Also inspect centering, all four edges, and the surface for scratches, dings, dents, indentations, wrinkles, creases, stains, discoloration and print defects.
 
 Evidence rules: report ONLY physical damage that is actually visible. Never invent defects. Do not mistake shadows, glare, reflections, normal printing, sleeves, holders or compression for damage. If uncertain whether something is damage, put it in uncertain_observations and do not treat it as confirmed. Never infer damage from the opposite side. If no crease is visibly supported, do not report a crease.
 
 Return ONLY JSON:
-{"side":"${side}","centering":"brief","corners":{"top_left":"brief","top_right":"brief","bottom_left":"brief","bottom_right":"brief","summary":"brief meaningful corner condition"},"edges":"brief meaningful edge condition","surface":"brief meaningful surface condition","confirmed_defects":["short visible defect and location"],"uncertain_observations":["short uncertain observation"]}
+{"side":"${side}","centering":"brief","corners":{"top_left":"no visible wear, minor visible wear, or significant visible wear + location/type if present","top_right":"no visible wear, minor visible wear, or significant visible wear + location/type if present","bottom_left":"no visible wear, minor visible wear, or significant visible wear + location/type if present","bottom_right":"no visible wear, minor visible wear, or significant visible wear + location/type if present","summary":"brief meaningful corner condition"},"edges":"brief meaningful edge condition","surface":"brief meaningful surface condition","confirmed_defects":["short visible defect and location"],"uncertain_observations":["short uncertain observation"]}
 
-Do not describe anything except physical condition.`;const response=await ai.run(VISION_MODEL,{prompt,image:imageBytes,max_tokens:600,temperature:0.02});console.log(`Workers AI raw ${side} response:`,JSON.stringify(response,null,2));return parseSideAnalysis(response,side)}
+Do not describe anything except physical condition.`;const response=await ai.run(VISION_MODEL,{prompt,image:imageBytes,max_tokens:650,temperature:0.01});console.log(`Workers AI raw ${side} response:`,JSON.stringify(response,null,2));return parseSideAnalysis(response,side)}
 
 async function combineGradeAnalyses(ai,frontAnalysis,backAnalysis){const prompt=`You are the final trading-card grading decision-maker. Use ONLY physical-condition evidence below.
 
@@ -32,8 +34,9 @@ Rules:
 - PSA framework governs the grade.
 - Never invent a defect.
 - Ignore uncertain observations.
-- Consider ALL FOUR corners individually. If source evidence says a corner has visible whitening, chipping, rounding, a nick, ding or other wear, the final corner assessment MUST acknowledge it.
-- Never state "corners are not damaged" or equivalent when any source corner has confirmed visible damage.
+- Use the individual four-corner findings as evidence, not merely the corner summary. If ANY individual corner is reported as minor or significant visible wear, the final corner assessment MUST acknowledge that wear.
+- Never state "corners are not damaged" or equivalent when any individual corner has confirmed visible wear.
+- Do not erase a specific corner defect just because the summary says the corners are generally good.
 - A confirmed crease is incompatible with PSA 7-10; constrain the estimate to PSA 6 or below.
 - PSA 10 requires virtually perfect condition; PSA 9 is near-perfect; PSA 8 permits minor corner/edge wear; PSA 7 permits slight surface/corner wear.
 - Do not lower the grade for a defect that is not actually visible.
@@ -43,7 +46,7 @@ Rules:
 USER OUTPUT MUST BE CONCISE. Never mention player, team, statistics, text, artwork, background, colors, logos, design, photograph contents, or AI analysis. Report only condition information that matters to the grade. Do not repeat normal observations.
 
 Return ONLY:
-{"suggested_grade":"7-8","grade_explanation":"1-2 short sentences using only key condition issues","centering":"one short sentence","corners":"one short sentence naming meaningful corner wear, or No significant visible corner wear","edges":"one short sentence naming meaningful edge wear, or No significant visible edge wear","surface":"one short sentence naming meaningful surface issues, or No significant visible surface damage","back":"one short sentence about meaningful visible back condition","confidence":"High, Medium, or Low"}`;const response=await ai.run(VISION_MODEL,{prompt,max_tokens:350,temperature:0.02});console.log("Workers AI combined response:",JSON.stringify(response,null,2));return enforceGradeConsistency(parseModelJson(response),frontAnalysis,backAnalysis)}
+{"suggested_grade":"7-8","grade_explanation":"1-2 short sentences using only key condition issues","centering":"one short sentence","corners":"one short sentence naming meaningful corner wear, or No significant visible corner wear","edges":"one short sentence naming meaningful edge wear, or No significant visible edge wear","surface":"one short sentence naming meaningful surface issues, or No significant visible surface damage","back":"one short sentence about meaningful visible back condition","confidence":"High, Medium, or Low"}`;const response=await ai.run(VISION_MODEL,{prompt,max_tokens:350,temperature:0.01});console.log("Workers AI combined response:",JSON.stringify(response,null,2));return enforceGradeConsistency(parseModelJson(response),frontAnalysis,backAnalysis)}
 
 function enforceGradeConsistency(result,frontAnalysis,backAnalysis){const analyses=[frontAnalysis,backAnalysis].filter(Boolean);const confirmed=analyses.flatMap(a=>Array.isArray(a?.confirmed_defects)?a.confirmed_defects:[]);if(confirmed.some(d=>/\b(crease|creased|wrinkle|wrinkled)\b/i.test(String(d)))){const range=parseGradeRange(result?.suggested_grade);if(range&&range.high>6)return {...result,suggested_grade:"5-6",grade_explanation:"A confirmed visible crease was reported, so the estimate is constrained to the PSA 6-or-below range."}}return result}
 function parseGradeRange(value){const n=String(value||"").match(/\d+(?:\.\d+)?/g)?.map(Number)||[];if(!n.length)return null;if(n.length===1)return{low:n[0],high:n[0]};return{low:Math.min(n[0],n[1]),high:Math.max(n[0],n[1])}}
