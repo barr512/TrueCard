@@ -7,7 +7,7 @@ const CORS_HEADERS = {
 const VISION_MODEL = "@cf/meta/llama-3.2-11b-vision-instruct";
 
 const PSA_SCALE = `
-PSA 10 Gem Mint: Virtually perfect; razor-sharp corners, flawless surface, perfect gloss, centering approximately 55/45 or better.
+PSA 10 Gem Mint: Virtually perfect: razor-sharp corners, flawless surface, perfect gloss, centering approximately 55/45 or better.
 PSA 9 Mint: Near-perfect with only minor flaws such as slight off-centering or tiny print imperfections.
 PSA 8 Near Mint-Mint: Excellent condition with minor wear visible on corners or edges.
 PSA 7 Near Mint: Slight surface or corner wear; still visually strong.
@@ -16,7 +16,7 @@ PSA 5 Excellent: Moderate wear, minor creasing, or surface issues.
 PSA 4 Very Good-Excellent: Obvious wear including rounded corners or surface loss.
 PSA 3 Very Good: Heavy wear, creases, or discoloration.
 PSA 2 Good: Significant damage such as major creases or staining.
-PSA 1 Poor: Severe damage such as tears, missing paper, or heavy creasing.
+PSA 1 Poor: Severe damage: tears, missing paper, heavy creasing.
 `;
 
 export default {
@@ -79,102 +79,105 @@ async function gradeCard(request, env) {
 
 async function analyzeCardSide(ai, imageFile, side) {
   const imageBytes = Array.from(new Uint8Array(await imageFile.arrayBuffer()));
-  const prompt = `You are performing a careful visual condition inspection of the ${side} photograph of a trading card.
+  const prompt = `You are inspecting only the physical condition of the ${side} side of a trading card.
 
-Your job in this step is NOT to assign a grade. Your job is to report only physical condition evidence that is actually visible in this photograph.
+Do NOT identify the player, team, statistics, text, artwork, background, design, or other content unless it directly affects physical condition. Do not write a general description of the photograph.
 
-Inspect the entire card systematically:
-1. Centering.
-2. Each of the four corners for whitening, rounding, bends, or other wear.
-3. Each edge for chipping, whitening, nicks, or wear.
-4. The entire surface for scratches, dents, dings, indentations, wrinkles, creases, stains, print defects, discoloration, or other surface damage.
-5. Image limitations such as glare, reflections, sleeve/holder artifacts, blur, lighting, focus, or resolution.
+Inspect only these grading factors:
+- centering
+- corners
+- edges
+- surface
+- visible print defects
+- visible whitening, wear, scratches, dings, dents, wrinkles, creases, stains, or discoloration
 
-IMPORTANT EVIDENCE RULES:
+IMPORTANT:
+- Report only physical defects that are actually visible.
 - Never invent a defect.
-- Do not report a crease, wrinkle, scratch, dent, ding, stain, or indentation unless the photograph contains visible evidence supporting that specific defect.
-- Shadows, glare, reflections, normal card texture, borders, printing, sleeve/holder artifacts, and image-compression artifacts are NOT defects.
-- If an apparent mark could reasonably be an image artifact and cannot be distinguished from a physical defect, classify it as UNCERTAIN rather than as a confirmed defect.
-- Do not infer a defect from the condition of the opposite side.
-- A clean-looking area may be reported as "no visible defect" but this does not prove that hidden damage is absent.
-- Pay particular attention to small surface dings and indentations that may be easy to overlook.
-- Every confirmed defect must include an approximate location on the card.
-- If there is no visible evidence of a crease, explicitly say "No crease visible" rather than speculating that one may exist.
+- Do not interpret shadows, glare, reflections, normal printing, card borders, sleeve/holder artifacts, or image compression as physical damage.
+- If a mark cannot clearly be distinguished from an image artifact, do not call it a confirmed defect.
+- Do not infer a defect from the opposite side.
+- Look carefully for small surface dings and indentations.
+- Every actual defect should include a short location.
+- If no crease is visibly supported, say "No visible crease."
 
-Use these status values for defects: "confirmed", "uncertain", or "none_visible".
-
-Return only valid JSON in exactly this structure:
+Return ONLY this compact JSON:
 {
   "side": "${side}",
-  "centering": "visible centering observations",
-  "corners": "visible corner observations",
-  "edges": "visible edge observations",
-  "surface": "visible surface observations",
-  "defects": [
-    {
-      "type": "crease | wrinkle | scratch | ding | dent | stain | whitening | corner_wear | edge_wear | print_defect | discoloration | other",
-      "status": "confirmed | uncertain | none_visible",
-      "location": "approximate location",
-      "description": "only what is visibly supported by the photograph"
-    }
-  ],
-  "overall_observation": "brief evidence-based assessment of this side",
-  "image_limitations": "specific limitations visible in the photograph, or none apparent"
-}`;
+  "centering": "brief condition observation",
+  "corners": "brief condition observation",
+  "edges": "brief condition observation",
+  "surface": "brief condition observation",
+  "confirmed_defects": ["short defect with location"],
+  "uncertain_observations": ["short observation only if genuinely uncertain"],
+  "overall_observation": "one short condition summary",
+  "image_limitations": "only relevant limitations"
+}
 
-  const response = await ai.run(VISION_MODEL, { prompt, image: imageBytes, max_tokens: 1000, temperature: 0.05 });
+Keep every field concise. Do not include card facts, statistics, player information, artwork descriptions, background descriptions, or other irrelevant observations.`;
+
+  const response = await ai.run(VISION_MODEL, {
+    prompt,
+    image: imageBytes,
+    max_tokens: 550,
+    temperature: 0.05
+  });
+
   console.log(`Workers AI raw ${side} response:`, JSON.stringify(response, null, 2));
   return parseSideAnalysis(response, side);
 }
 
 async function combineGradeAnalyses(ai, frontAnalysis, backAnalysis) {
-  const prompt = `You are producing a conservative photo-based trading-card grade estimate using the PSA grading framework below.
+  const prompt = `You are producing a concise photo-based trading-card grade estimate using the PSA framework below.
 
 ${PSA_SCALE}
 
-FRONT VISUAL ANALYSIS:
+FRONT CONDITION ANALYSIS:
 ${JSON.stringify(frontAnalysis)}
 
-BACK VISUAL ANALYSIS:
+BACK CONDITION ANALYSIS:
 ${backAnalysis ? JSON.stringify(backAnalysis) : "No back photograph was provided."}
 
-GRADING RULES:
-- The PSA scale above is the governing grading framework. Do not substitute another grading system.
-- Use only physical defects explicitly reported as CONFIRMED in the visual analyses. Do not invent new defects.
-- An UNCERTAIN observation is not a confirmed defect and must not be stated as fact in the final explanation.
-- Do not turn glare, reflection, printing, shadows, sleeves, holders, blur, or image artifacts into physical defects.
-- Consider both sides when a back photograph is supplied.
-- A defect on one side must not be attributed to the other side.
-- The final grade must be consistent with the PSA descriptions. Do not give a high grade while simultaneously describing a defect that is inconsistent with that grade.
-- In particular, a confirmed crease is a noticeable imperfection under the supplied PSA scale and cannot be reconciled with PSA 7-10. A confirmed small crease should place the estimate in PSA 6 territory or below depending on the total condition; more serious creasing should move lower.
-- PSA 10 requires a virtually perfect card. Do not use PSA 10 when confirmed visible defects are present.
-- PSA 9 is near-perfect and should be reserved for only very minor flaws such as slight centering or tiny print imperfections.
+GRADE RULES:
+- The PSA scale above is the governing standard.
+- Use only visible condition information supplied by the two analyses.
+- Do not invent defects or add details not present in those analyses.
+- Ignore uncertain observations when deciding the grade.
+- A confirmed crease cannot be reconciled with PSA 7-10 under the supplied scale; a small crease places the card in PSA 6 territory or below depending on total condition.
+- PSA 10 requires virtually perfect visible condition.
+- PSA 9 is near-perfect with only very minor flaws.
 - PSA 8 allows minor corner or edge wear.
 - PSA 7 allows slight surface or corner wear.
-- PSA 6 allows noticeable imperfections such as small creases or moderate corner wear.
-- Lower grades should be selected when the observed condition matches the lower PSA descriptions.
-- Do not penalize the card for a defect that is not actually visible.
-- Do not claim that a side is free of hidden defects. Say "no visible defect" when appropriate.
-- If the photographs are inadequate to judge an area, state that limitation and lower confidence rather than inventing a defect.
-- Return a grade RANGE no wider than one numerical grade, such as "7-8".
-- Do not return a single definitive professional grade.
+- Lower grades apply when the visible condition matches the corresponding PSA description.
+- Do not lower the grade for a defect that is not actually visible.
+- Do not claim hidden defects are absent.
+- Return a grade range no wider than one numerical grade, such as 7-8.
 
-CONSISTENCY REQUIREMENT:
-Before returning the result, compare every stated defect against the proposed grade. If the explanation contains a confirmed crease, major surface damage, or other condition that contradicts the proposed PSA range, revise the grade downward so the statements are consistent. Conversely, do not lower the grade for uncertain or unsupported defects.
+OUTPUT RULES:
+The user needs a short grading assessment, NOT a forensic image report.
+Do not mention the card's player, team, statistics, text, artwork, background, colors, design, or other irrelevant content.
+Do not repeat all image-analysis details.
+Mention only the condition observations that materially explain the grade.
+If a side has no meaningful visible defect, say simply "No significant visible defect." Do not list everything that looks normal.
 
-Return only this JSON object and nothing else:
+Return ONLY this JSON:
 {
   "suggested_grade": "7-8",
-  "grade_explanation": "clear explanation based only on confirmed visible condition",
-  "centering": "combined centering assessment",
-  "corners": "combined corner assessment",
-  "edges": "combined edge assessment",
-  "surface": "combined surface assessment",
-  "back": "back assessment based only on confirmed visible evidence, or note that no back was supplied",
+  "grade_explanation": "one or two concise sentences explaining the grade and the key visible condition factors",
+  "centering": "one short sentence",
+  "corners": "one short sentence",
+  "edges": "one short sentence",
+  "surface": "one short sentence mentioning only meaningful visible surface issues",
+  "back": "one short sentence about meaningful visible back condition",
   "confidence": "High, Medium, or Low"
 }`;
 
-  const response = await ai.run(VISION_MODEL, { prompt, max_tokens: 700, temperature: 0.05 });
+  const response = await ai.run(VISION_MODEL, {
+    prompt,
+    max_tokens: 400,
+    temperature: 0.05
+  });
+
   console.log("Workers AI combined response:", JSON.stringify(response, null, 2));
   const result = parseModelJson(response);
   return enforceGradeConsistency(result, frontAnalysis, backAnalysis);
@@ -182,25 +185,23 @@ Return only this JSON object and nothing else:
 
 function enforceGradeConsistency(result, frontAnalysis, backAnalysis) {
   const analyses = [frontAnalysis, backAnalysis].filter(Boolean);
-  const confirmed = analyses.flatMap(a => Array.isArray(a?.defects) ? a.defects : []).filter(d => d?.status === "confirmed");
-  const hasConfirmedCrease = confirmed.some(d => ["crease", "wrinkle"].includes(String(d.type).toLowerCase()));
-  if (!hasConfirmedCrease) return result;
+  const confirmed = analyses.flatMap(a => Array.isArray(a?.confirmed_defects) ? a.confirmed_defects : []);
+  const creaseReported = confirmed.some(d => /\b(crease|creased|wrinkle|wrinkled)\b/i.test(String(d)));
+
+  if (!creaseReported) return result;
 
   const range = parseGradeRange(result?.suggested_grade);
-  if (!range) return result;
-  if (range.high <= 6) return result;
+  if (!range || range.high <= 6) return result;
 
-  const explanation = String(result.grade_explanation || "").replace(/\b7\s*[-–]\s*8\b|\b8\s*[-–]\s*9\b|\b9\s*[-–]\s*10\b/g, "6 or below");
   return {
     ...result,
     suggested_grade: "5-6",
-    grade_explanation: `${explanation}${explanation ? " " : ""}A confirmed visible crease is present, so the estimate is constrained to the PSA 6-or-below range under the supplied PSA framework.`
+    grade_explanation: "A visible crease was reported, so the estimate has been constrained to the PSA 6-or-below range under the supplied PSA framework."
   };
 }
 
 function parseGradeRange(value) {
-  const text = String(value || "");
-  const numbers = text.match(/\d+(?:\.\d+)?/g)?.map(Number) || [];
+  const numbers = String(value || "").match(/\d+(?:\.\d+)?/g)?.map(Number) || [];
   if (!numbers.length) return null;
   if (numbers.length === 1) return { low: numbers[0], high: numbers[0] };
   return { low: Math.min(numbers[0], numbers[1]), high: Math.max(numbers[0], numbers[1]) };
@@ -211,7 +212,7 @@ async function estimateValue(request, env) {
   const card = await request.json();
   if (!card?.player) return jsonResponse({ error: "Player or card name is required." }, 400);
   const cardDescription = [card.year, card.player, card.manufacturer, card.setName, card.releaseName, card.cardNumber ? `#${card.cardNumber}` : "", card.gradingCompany, card.professionalGrade ? `grade ${card.professionalGrade}` : "", !card.professionalGrade && card.suggestedGrade ? `estimated condition ${card.suggestedGrade}` : "", card.sport].filter(Boolean).join(" ");
-  const prompt = `Estimate the current market value in US dollars for this trading card:\n\n${cardDescription}\n\nUse Google Search to find recent, relevant market information.\n\nPrioritize:\n- Recent sold or completed sales\n- Clearly matching year, player, set, card number, variation, grading company, and grade\n- Sales from approximately the last 90 days when available\n- Multiple comparable sales rather than one unusual result\n\nDo not treat active asking prices as completed sales.\nDo not use SportsCardsPro.\nDo not claim that an asking price is a sold price.\nDo not invent sales, prices, dates, or sources.\n\nIf exact sold comparisons are unavailable, use the closest reasonable matches and clearly lower the confidence.\n\nReturn only valid JSON with this exact structure:\n{\n  "estimated_value": 0,\n  "low_estimate": 0,\n  "high_estimate": 0,\n  "currency": "USD",\n  "confidence": "High, Medium, or Low",\n  "summary": "Brief explanation of how the estimate was determined",\n  "comparables_found": 0,\n  "search_description": "${cardDescription}"\n}`;
+  const prompt = `Estimate the current market value in US dollars for this trading card:\n\n${cardDescription}\n\nUse Google Search to find recent, relevant market information. Prioritize recent sold or completed sales and clearly matching cards. Do not treat asking prices as completed sales. Do not use SportsCardsPro. Do not invent sales, prices, dates, or sources. Return only valid JSON with estimated_value, low_estimate, high_estimate, currency, confidence, summary, comparables_found, and search_description.`;
   const geminiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY }, body: JSON.stringify({ model: "gemini-3.5-flash", input: prompt, tools: [{ type: "google_search" }] }) });
   const geminiResult = await geminiResponse.json();
   if (!geminiResponse.ok) throw new Error(geminiResult?.error?.message || "Gemini could not complete the value search.");
@@ -244,7 +245,7 @@ function parseSideAnalysis(result, side) {
     const text = String(raw).trim();
     if (!text) throw error;
     console.warn(`Workers AI returned a non-JSON ${side} analysis. Using the text as a fallback.`);
-    return { side, centering: "", corners: "", edges: "", surface: text, defects: [], major_defects: [], overall_observation: text, image_limitations: "The vision model returned a written assessment instead of structured JSON." };
+    return { side, centering: "", corners: "", edges: "", surface: text, confirmed_defects: [], uncertain_observations: [], overall_observation: text, image_limitations: "" };
   }
 }
 
