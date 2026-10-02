@@ -900,19 +900,39 @@ purchasePrice: document.getElementById("purchasePrice").value
     updatedAt: new Date().toISOString()
   };
 
-  await saveCard(card);
+  
+  // First, save the card. Report save errors separately from refresh errors.
+  try {
+    await saveCard(card);
+  } catch (error) {
+    console.error("Could not save card:", error);
+    alert(
+      `TrueCard could not save this card:\n${
+        error?.message || "Unknown database error."
+      }\n\nYour form has been left in place so you can try again.`
+    );
+    return;
+  }
 
-const savedCards = await getAllCards();
-console.log("Cards currently stored:", savedCards.length);
+  // The card is saved. Clear the form before refreshing the collection.
+  cardForm.reset();
+  clearScannedImages();
 
-cardForm.reset();
-clearScannedImages();
+  cardType.value = "raw";
+  updateCardTypeFields();
 
-cardType.value = "raw";
-updateCardTypeFields();
-
-await loadCards();
-  navigateTo("collectionScreen");
+  // loadCards() already calls getAllCards(), so don't read them again here.
+  try {
+    await loadCards();
+    navigateTo("collectionScreen");
+  } catch (error) {
+    console.error("Card saved, but collection refresh failed:", error);
+    alert(
+      `The card was saved, but TrueCard could not refresh the collection.\n${
+        error?.message || "Unknown database error."
+      }\n\nRefresh the page and check whether the card appears.`
+    );
+  }
 });
 
 searchInput.addEventListener("input", updateCollectionView);
