@@ -10,7 +10,16 @@ function openDatabase() {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+  const db = request.result;
+
+  // Release this connection if another tab or version needs an upgrade.
+  db.onversionchange = () => {
+    db.close();
+  };
+
+  resolve(db);
+};
 
     request.onupgradeneeded = event => {
       const db = event.target.result;
@@ -53,16 +62,80 @@ function openDatabase() {
   });
 }
 
-function runStoreRequest(storeName, mode, requestFactory) {
-  return openDatabase().then(db => new Promise((resolve, reject) => {
-    const transaction = db.transaction(storeName, mode);
-    const store = transaction.objectStore(storeName);
-    const request = requestFactory(store);
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-    transaction.onerror = () => reject(transaction.error);
-  }));
+function runStoreRequest(storeName, mode, requestFactory) {
+  return openDatabase().then(db => {
+    return new Promise((resolve, reject) => {
+      let transaction;
+      let request;
+      let requestResult;
+      let operationError = null;
+      let settled = false;
+
+      const cleanup = () => {
+        // Close this connection after the transaction finishes.
+        db.close();
+      };
+
+      const fail = error => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(
+          error instanceof Error
+            ? error
+            : new Error(String(error || "IndexedDB operation failed."))
+        );
+      };
+
+      try {
+        transaction = db.transaction(storeName, mode);
+        const store = transaction.objectStore(storeName);
+
+        request = requestFactory(store);
+
+        request.onsuccess = () => {
+          requestResult = request.result;
+        };
+
+        request.onerror = () => {
+          operationError =
+            request.error ||
+            new Error(`IndexedDB request failed for "${storeName}".`);
+          // Let the transaction's abort/error handlers finish cleanup.
+        };
+
+        transaction.oncomplete = () => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+
+          if (operationError) {
+            reject(operationError);
+          } else {
+            resolve(requestResult);
+          }
+        };
+
+        transaction.onerror = () => {
+          operationError =
+            transaction.error ||
+            operationError ||
+            new Error(`IndexedDB transaction failed for "${storeName}".`);
+        };
+
+        transaction.onabort = () => {
+          fail(
+            transaction.error ||
+              operationError ||
+              new Error(`IndexedDB transaction was aborted for "${storeName}".`)
+          );
+        };
+      } catch (error) {
+        fail(error);
+      }
+    });
+  });
 }
 
 async function saveCard(card) {
